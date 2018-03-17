@@ -2,10 +2,10 @@ package com.igorini.togepibot
 
 import com.igorini.kotlintwitchbot.TwitchBot
 import com.igorini.togepibot.commands.general.Duel
+import org.koin.standalone.KoinComponent
 
 /** Represents a twitch bot */
-
-class TogepiBot : TwitchBot() {
+class TogepiBot : TwitchBot(), KoinComponent {
     init {
         registerCommand(Duel())
     }
