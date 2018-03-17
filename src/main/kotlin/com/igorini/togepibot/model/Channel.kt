@@ -16,5 +16,6 @@ class Channel(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<Channel>(Channels)
 
     var name by Channels.name
+    val duelists by Duelist referrersOn Duelists.channel
 }
 
