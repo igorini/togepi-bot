@@ -33,6 +33,7 @@ class Duel : Command() {
         if (words.size == 1) {
             opponent = randomViewerExcept(messageEvent, botUsers.plus(username))
             if (opponent == null) {
+                // TODO: Modify kotlin-twitch-bot and throw an exception instead
                 sendMessageToChannel(channelName, "Достойных соперников не обнаружено. Kappa")
                 return
             }
@@ -43,7 +44,7 @@ class Duel : Command() {
                 return
             }
             if (!viewerOnlineExcept(messageEvent, opponent, botUsers)) {
-                sendMessageToChannel(channelName,"Пользователь $opponent в чате не найден. ¯\\_(ツ)_/¯")
+                sendMessageToChannel(channelName,"Пользователь $opponent в чате не найден, или он бот. Kappa")
                 return
             }
         }
