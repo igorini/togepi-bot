@@ -9,8 +9,8 @@ import java.math.BigDecimal
 /** Represents a duelist model */
 @Suppress("unused")
 object Duelists : IntIdTable() {
-    val channelName = reference("channel_name", Channels)
-    val userName = reference("user_name", Users)
+    val channel = reference("channel", Channels)
+    val user = reference("user", Users)
     val duels = integer("duels").default(0)
     val wins = integer("wins").default(0)
     val losses = integer("losses").default(0)
@@ -22,8 +22,8 @@ object Duelists : IntIdTable() {
 class Duelist(id: EntityID<Int>) : IntEntity(id) {
     companion object : IntEntityClass<Duelist>(Duelists)
 
-    var channelName by Duelists.channelName
-    var userName by Duelists.userName
+    var channel by Channel referencedOn Duelists.channel
+    var user by User referencedOn Duelists.user
     var duels by Duelists.duels
     var wins by Duelists.wins
     var losses by Duelists.losses
