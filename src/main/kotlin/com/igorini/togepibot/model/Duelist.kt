@@ -1,10 +1,8 @@
 package com.igorini.togepibot.model
 
-import com.igorini.togepibot.model.Duelists.default
-import com.igorini.togepibot.model.Duelists.nullable
 import org.jetbrains.exposed.dao.*
-import org.jetbrains.exposed.sql.Table
 import java.math.BigDecimal
+import java.math.RoundingMode
 
 /** Represents a duelist model */
 @Suppress("unused")
@@ -14,7 +12,7 @@ object Duelists : IntIdTable() {
     val duels = integer("duels").default(0)
     val wins = integer("wins").default(0)
     val losses = integer("losses").default(0)
-    val winrate = decimal("winrate", 6, 4).default(BigDecimal.ZERO)
+    val winrate = decimal("winrate", 7, 4).default(BigDecimal.ZERO)
     val maxCrit = integer("max_crit").nullable()
 }
 
@@ -30,3 +28,5 @@ class Duelist(id: EntityID<Int>) : IntEntity(id) {
     var winrate by Duelists.winrate
     var maxCrit by Duelists.maxCrit
 }
+
+fun Duelist.recalculateWinrate() = BigDecimal(wins.toString()).divide(BigDecimal(duels.toString()), 6, RoundingMode.HALF_UP).multiply(BigDecimal("100"))

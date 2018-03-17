@@ -5,16 +5,12 @@ import com.igorini.kotlintwitchbot.ext.viewerOnlineExcept
 import com.igorini.togepibot.TogepiBot.Companion.botUsers
 import com.igorini.togepibot.TogepiBot.Companion.negativeEmotes
 import com.igorini.togepibot.TogepiBot.Companion.positiveEmotes
-import com.igorini.togepibot.model.Channels
-import com.igorini.togepibot.model.Duelists
-import com.igorini.togepibot.model.Users
+import com.igorini.togepibot.model.*
 import me.philippheuer.twitch4j.events.event.irc.ChannelMessageEvent
 import me.philippheuer.twitch4j.message.commands.Command
 import me.philippheuer.twitch4j.message.commands.CommandPermission
-import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.math.BigDecimal
-import java.math.RoundingMode
 
 /** Represents a command that performs a duel against someone in chat */
 class Duel : Command() {
@@ -35,103 +31,98 @@ class Duel : Command() {
 
         val username = messageEvent.user.name.toLowerCase()
         val userDisplayName = messageEvent.user.displayName!!
-        val opponent : String?
+        val opponentUsername : String?
 
         if (words.size == 1) {
-            opponent = randomViewerExcept(messageEvent, botUsers.plus(username))
-            if (opponent == null) {
+            opponentUsername = randomViewerExcept(messageEvent, botUsers.plus(username))
+            if (opponentUsername == null) {
                 // TODO: Modify kotlin-twitch-bot and throw an exception instead
                 sendMessageToChannel(channelName, "Достойных соперников не обнаружено. Kappa")
                 return
             }
         } else {
-            opponent = words[1].replaceFirst("^@".toRegex(), "").toLowerCase()
-            if (opponent == username) {
+            opponentUsername = words[1].replaceFirst("^@".toRegex(), "").toLowerCase()
+            if (opponentUsername == username) {
                 sendMessageToChannel(channelName, "Хорошая попытка, $userDisplayName TehePelo")
                 return
             }
-            if (!viewerOnlineExcept(messageEvent, opponent, botUsers)) {
-                sendMessageToChannel(channelName,"Пользователь $opponent в чате не найден, или он бот. Kappa")
+            if (!viewerOnlineExcept(messageEvent, opponentUsername, botUsers)) {
+                sendMessageToChannel(channelName,"Пользователь $opponentUsername в чате не найден, или он бот. Kappa")
                 return
             }
         }
 
-        val opponentDisplayName = findDisplayName(opponent)
+        val opponentDisplayName = findDisplayName(opponentUsername)
 
-        val winner = listOf(userDisplayName, opponentDisplayName).shuffled().first()
+        var winner: User? = null
+        var user: User? = null
+        var opponent: User?
+        var channel: Channel?
 
+        // TODO: Split into multiple transactions?
         transaction {
-            Channels.insertIgnore { it[name] = channelName }
+            channel = findChannelOrInsert(channelName)
+            user = findUserOrInsert(username, userDisplayName)
+            opponent = findUserOrInsert(opponentUsername, opponentDisplayName)
+            winner = listOf(user, opponent).shuffled().first()
 
-            Users.insertIgnore {
-                it[name] = username
-                it[displayName] = userDisplayName
-            }
-
-            Users.insertIgnore {
-                it[name] = opponent
-                it[displayName] = opponentDisplayName
-            }
-
-            upsertDuelist(channelName, username, winner.toLowerCase())
-            upsertDuelist(channelName, opponent, winner.toLowerCase())
+            upsertDuelist(channel!!, user!!, winner!!)
+            upsertDuelist(channel!!, opponent!!, winner!!)
         }
 
-        val emote = if (winner == userDisplayName) positiveEmotes.shuffled().first() else negativeEmotes.shuffled().first()
+        val emote = if (winner == user) positiveEmotes.shuffled().first() else negativeEmotes.shuffled().first()
 
         val replies = listOf(
-                "За право стать величайшим мастером боевых искусств всех времён, $userDisplayName вызывает на бой $opponentDisplayName! ʕง•ᴥ•ʔง Побеждает $winner! $emote",
-                "$userDisplayName vs $opponentDisplayName. FIGHT! ʕง•ᴥ•ʔง $winner wins! Flawless victory! $emote",
-                "$opponentDisplayName принимает вызов $userDisplayName! ʕง•ᴥ•ʔง В этот раз победу одерживает $winner! $emote",
-                "В решающей битве за Лордерон PurpleStar сошлись прославленные герои - $userDisplayName и $opponentDisplayName! Победа за $winner! $emote")
+                "За право стать величайшим мастером боевых искусств всех времён, $userDisplayName вызывает на бой $opponentDisplayName! ʕง•ᴥ•ʔง Побеждает ${winner!!.displayName}! $emote",
+                "$userDisplayName vs $opponentDisplayName. FIGHT! ʕง•ᴥ•ʔง ${winner!!.displayName} wins! Flawless victory! $emote",
+                "$opponentDisplayName принимает вызов $userDisplayName! ʕง•ᴥ•ʔง В этот раз победу одерживает ${winner!!.displayName}! $emote",
+                "В решающей битве за Лордерон PurpleStar сошлись прославленные герои - $userDisplayName и $opponentDisplayName! Победа за ${winner!!.displayName}! $emote")
 
         sendMessageToChannel(channelName, replies.shuffled().first())
     }
 
-    private fun upsertDuelist(channelName: String, username: String, winner: String) = if (duelistPersisted(channelName, username)) {
-        updateDuelist(channelName, username, winner == username)
-    } else {
-        insertDuelist(channelName, username, winner == username)
+    // TODO: Call a function that does this in the background
+    private fun findChannelOrInsert(channelName: String): Channel {
+        val result = Channel.find { Channels.name eq channelName }
+        return if (result.empty()) Channel.new { name = channelName } else result.first()
     }
 
-    private fun insertDuelist(dChannelName: String, dUserName: String, won: Boolean) {
-        Duelists.insert {
-            it[channelName] = dChannelName
-            it[userName] = dUserName
-            it[duels] = 1
-            it[wins] = if (won) 1 else 0
-            it[losses] = if (won) 0 else 1
-            it[winrate] = calculateWinrate(if (won) 1 else 0, 1)
-        }
-    }
-
-    private fun updateDuelist(dChannelName: String, dUserName: String, won: Boolean) {
-        val cDuels: Int
-        val cWins: Int
-
-        Duelists.select {
-            (Duelists.channelName eq dChannelName) and (Duelists.userName eq dUserName)
-        }.first()
-
-        Duelists.update ({ (Duelists.channelName eq dChannelName) and (Duelists.userName eq dUserName) }) {
-            with(SqlExpressionBuilder) {
-                val duels = (Duelists.duels + 1)
-                it.update(Duelists.duels, Duelists.duels + 1)
-                if (won) {
-                    it.update(Duelists.wins, Duelists.wins + 1)
-                    it.update(Duelists.winrate, )
-                } else {
-                    it.update(Duelists.losses, Duelists.losses + 1)
-                }
+    private fun findUserOrInsert(username: String, userDisplayName: String): User {
+        val result = User.find { Users.name eq username }
+        return if (result.empty()) {
+            User.new {
+                name = username
+                displayName = userDisplayName
             }
+        } else result.first()
+    }
+
+    private fun upsertDuelist(channel: Channel, user: User, winner: User) = if (channel.duelists.any { it.user == user }) {
+        updateDuelist(channel, user, winner == user)
+    } else {
+        insertDuelist(channel, user, winner == user)
+    }
+
+    private fun insertDuelist(duelistChannel: Channel, duelistUser: User, won: Boolean) {
+        Duelist.new {
+            channel = duelistChannel
+            user = duelistUser
+            duels = 1
+            wins = if (won) 1 else 0
+            losses = if (won) 0 else 1
+            winrate = if (won) BigDecimal("100.0000") else BigDecimal("0.0000")
         }
     }
 
-    private fun calculateWinrate(wins: Int, duels: Int) = BigDecimal(wins).divide(BigDecimal(duels), 4, RoundingMode.HALF_UP)
-
-    private fun duelistPersisted(channelName: String, username: String) = Duelists.select {
-        (Duelists.channelName eq channelName) and (Duelists.userName eq username)
-    }.any()
+    // TODO: Refactor with inner functions
+    private fun updateDuelist(duelistChannel: Channel, duelistUser: User, won: Boolean) {
+        // TODO: Check if the second query to Duelists can be avoided
+        with (duelistChannel.duelists.find { it.user == duelistUser }!!) {
+            duels++
+            if (won) wins++ else losses++
+            winrate = recalculateWinrate()
+        }
+    }
 
     // TODO: Move to an extension function to a class Command in kotlin-twitch-bot
     private fun findDisplayName(username: String): String {
