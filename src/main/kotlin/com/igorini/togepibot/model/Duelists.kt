@@ -4,6 +4,7 @@ import org.jetbrains.exposed.sql.Table
 import java.math.BigDecimal
 
 /** Represents a duelist model */
+@Suppress("unused")
 object Duelists : Table() {
     val id = integer("id").autoIncrement().primaryKey()
     val userId = integer("user_id") references Users.id
