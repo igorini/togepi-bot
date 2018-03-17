@@ -10,3 +10,4 @@
 *.ipr
 
 /src/main/resources/config.yaml
+/src/main/resources/koin.properties

@@ -17,7 +17,7 @@ class Duel : Command() {
         category = "general" // TODO: Make constants if it will be needed
         description = "Вызовите оппонента на дуэль"
         requiredPermissions.add(CommandPermission.EVERYONE)
-        usageExample = "!дуэль @Igor_Dmitrievich"
+        usageExample = "!дуэль @username"
     }
 
     override fun executeCommand(messageEvent: ChannelMessageEvent?) {

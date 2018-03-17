@@ -9,6 +9,7 @@ class Application : KoinComponent {
     private val togepiBot: TogepiBot by inject()
 
     init {
+        togepiBot.initDatabase()
         togepiBot.start()
     }
 }
