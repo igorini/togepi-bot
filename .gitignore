@@ -9,5 +9,7 @@
 *.iml
 *.ipr
 
+*log
+config/*
 /src/main/resources/config.yaml
 /src/main/resources/koin.properties
