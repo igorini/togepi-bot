@@ -14,7 +14,7 @@ class Duel : Command() {
     init {
         command = "дуэль"
         commandAliases = arrayOf("duel", "fight", "поединок", "махач", "бой", "битва", "борьба", "вызов", "вызываю", "драка")
-        category = "general" // TODO: Make constants if it will be needed
+        category = "general"
         description = "Вызовите оппонента на дуэль"
         requiredPermissions.add(CommandPermission.EVERYONE)
         usageExample = "!дуэль @username"
@@ -28,7 +28,7 @@ class Duel : Command() {
 
         val username = messageEvent.user.name.toLowerCase()
         val displayName = messageEvent.user.displayName
-        var opponent : String?
+        val opponent : String?
 
         if (words.size == 1) {
             opponent = randomViewerExcept(messageEvent, botUsers.plus(username))
@@ -37,8 +37,8 @@ class Duel : Command() {
                 return
             }
         } else {
-            opponent = words.get(1).replaceFirst("^@".toRegex(), "").toLowerCase()
-            if (opponent.equals(username)) {
+            opponent = words[1].replaceFirst("^@".toRegex(), "").toLowerCase()
+            if (opponent == username) {
                 sendMessageToChannel(channelName, "Хорошая попытка, $displayName TehePelo")
                 return
             }
@@ -50,7 +50,7 @@ class Duel : Command() {
 
         val winner = listOf(displayName, opponent).shuffled().first()
 
-        val emote = if (winner.equals(displayName)) positiveEmotes.shuffled().first() else negativeEmotes.shuffled().first()
+        val emote = if (winner == displayName) positiveEmotes.shuffled().first() else negativeEmotes.shuffled().first()
 
         val replies = listOf(
                 "За право стать величайшим мастером боевых искусств всех времён, $displayName вызывает на бой $opponent! ʕง•ᴥ•ʔง Побеждает $winner! $emote",
