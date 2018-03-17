@@ -2,6 +2,7 @@ package com.igorini.togepibot
 
 import com.igorini.kotlintwitchbot.TwitchBot
 import com.igorini.togepibot.commands.general.Duel
+import com.igorini.togepibot.commands.general.DuelTop
 import com.igorini.togepibot.model.Channels
 import com.igorini.togepibot.model.Duelists
 import com.igorini.togepibot.model.Users
@@ -16,6 +17,7 @@ import org.koin.standalone.getProperty
 class TogepiBot : TwitchBot(), KoinComponent {
     init {
         registerCommand(Duel())
+        registerCommand(DuelTop())
     }
 
     fun initDatabase() {
@@ -24,7 +26,7 @@ class TogepiBot : TwitchBot(), KoinComponent {
     }
 
     companion object {
-        @JvmField val botUsers = listOf("moobot", "nighbot", "mirrobot", "togepibot")
+        @JvmField val botUsers = listOf("moobot", "nightbot", "mirrobot", "togepibot")
         @JvmField val positiveEmotes = listOf("VoHiYo", "BloodTrail", "PogChamp", "CoolCat", "SeemsGood", "TehePelo")
         @JvmField val negativeEmotes = listOf("BibleThump", "FailFish", "r6rekt", "DarkMode", "NotLikeThis", "BabyRage", "SwiftRage")
     }
