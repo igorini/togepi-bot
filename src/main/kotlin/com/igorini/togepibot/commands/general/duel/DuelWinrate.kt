@@ -8,19 +8,19 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.math.BigDecimal
 
 /** Represents a command that performs a duel against someone in chat */
-class DuelTop : Command() {
+class DuelWinrate : Command() {
     companion object {
         @JvmField val minimumAmountOfDuels = 5
         @JvmField val duelistsToDisplay = 3
     }
 
     init {
-        command = "топ"
-        commandAliases = arrayOf("топчик", "дуэльтоп")
+        command = "винрейт"
+        commandAliases = arrayOf("winrate", "wr")
         category = "general"
-        description = "Посмотреть топ дуэлянтов"
+        description = "Посмотреть топ винрейт дуэлянтов"
         requiredPermissions.add(CommandPermission.EVERYONE)
-        usageExample = "!топ"
+        usageExample = "!винрейт"
     }
 
     override fun executeCommand(messageEvent: ChannelMessageEvent?) {
@@ -29,7 +29,7 @@ class DuelTop : Command() {
         val channelName = messageEvent!!.channel.name!!
         val username = messageEvent.user.name.toLowerCase()
 
-        val sb = StringBuilder("Топ дуэлянтов")
+        val sb = StringBuilder("Топ винрейт")
 
         transaction {
             val channel = findChannelOrInsert(channelName)
@@ -41,13 +41,13 @@ class DuelTop : Command() {
 
             val userFoughtEnoughDuels = userFoughtEnoughDuels(channel, user, sortedDuelists)
             if (!userFoughtEnoughDuels) sb.append(" (минимум 5 дуэлей)")
-            sb.append(":${duelTop(sortedDuelists, channel, user, userFoughtEnoughDuels)}")
+            sb.append(":${topWinrate(sortedDuelists, channel, user, userFoughtEnoughDuels)}")
         }
 
         sendMessageToChannel(channelName, sb.toString())
     }
 
-    private fun duelTop(sortedDuelists: List<Duelist>, channel: Channel, user: User, userFoughtEnoughDuels: Boolean): String {
+    private fun topWinrate(sortedDuelists: List<Duelist>, channel: Channel, user: User, userFoughtEnoughDuels: Boolean): String {
         val sb = StringBuilder(50)
         val top3 = sortedDuelists.filter { it.duels >= minimumAmountOfDuels }.take(duelistsToDisplay)
         top3.forEachIndexed { index, duelist -> sb.append(" ${index + 1}. ${duelist.user.displayName} - ${duelist.winrate.setScale(2, BigDecimal.ROUND_DOWN)}%") }

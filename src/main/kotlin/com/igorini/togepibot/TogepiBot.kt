@@ -2,14 +2,13 @@ package com.igorini.togepibot
 
 import com.igorini.kotlintwitchbot.TwitchBot
 import com.igorini.togepibot.commands.general.duel.Duel
-import com.igorini.togepibot.commands.general.duel.DuelTop
+import com.igorini.togepibot.commands.general.duel.DuelWinrate
 import com.igorini.togepibot.model.Channels
 import com.igorini.togepibot.model.Duelists
 import com.igorini.togepibot.model.Users
 import com.igorini.togepibot.properties.DatabaseProperties
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SchemaUtils.create
-import org.jetbrains.exposed.sql.SchemaUtils.createMissingTablesAndColumns
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.getProperty
@@ -18,7 +17,7 @@ import org.koin.standalone.getProperty
 class TogepiBot : TwitchBot(), KoinComponent {
     init {
         registerCommand(Duel())
-        registerCommand(DuelTop())
+        registerCommand(DuelWinrate())
     }
 
     fun initDatabase() {
