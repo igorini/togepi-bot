@@ -10,7 +10,7 @@ import java.math.BigDecimal
 /** Represents a command that performs a duel against someone in chat */
 class DuelWinrate : Command() {
     companion object {
-        @JvmField val minimumAmountOfDuels = 5
+        @JvmField val minimumAmountOfDuels = 10
         @JvmField val duelistsToDisplay = 3
     }
 
@@ -40,7 +40,7 @@ class DuelWinrate : Command() {
             }
 
             val userFoughtEnoughDuels = userFoughtEnoughDuels(channel, user, sortedDuelists)
-            if (!userFoughtEnoughDuels) sb.append(" (минимум 5 дуэлей)")
+            if (!userFoughtEnoughDuels) sb.append(" (минимум $minimumAmountOfDuels дуэлей)")
             sb.append(":${topWinrate(sortedDuelists, channel, user, userFoughtEnoughDuels)}")
         }
 
