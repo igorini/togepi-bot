@@ -9,6 +9,7 @@ import com.igorini.togepibot.model.Users
 import com.igorini.togepibot.properties.DatabaseProperties
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SchemaUtils.create
+import org.jetbrains.exposed.sql.SchemaUtils.createMissingTablesAndColumns
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.getProperty
@@ -22,7 +23,10 @@ class TogepiBot : TwitchBot(), KoinComponent {
 
     fun initDatabase() {
         Database.connect(getProperty(DatabaseProperties.url), driver = getProperty(DatabaseProperties.driver), user = getProperty(DatabaseProperties.username), password = getProperty(DatabaseProperties.password))
-        transaction { create(Channels, Users, Duelists) }
+        transaction {
+            create(Channels, Users, Duelists)
+            //createMissingTablesAndColumns(Duelists, Channels, Users)
+        }
     }
 
     companion object {

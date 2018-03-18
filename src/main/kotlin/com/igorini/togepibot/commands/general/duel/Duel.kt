@@ -14,6 +14,13 @@ import java.math.BigDecimal
 
 /** Represents a command that performs a duel against someone in chat */
 class Duel : Command() {
+
+    companion object {
+        @JvmField val initialHP = 100
+        @JvmField val ressurectHP = initialHP / 2
+        @JvmField val baseDamage = 0.1
+    }
+
     init {
         command = "дуэль"
         commandAliases = arrayOf("duel", "fight", "поединок", "махач", "бой", "битва", "борьба", "вызов", "вызываю", "драка")
