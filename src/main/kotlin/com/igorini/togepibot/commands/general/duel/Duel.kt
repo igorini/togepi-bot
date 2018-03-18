@@ -1,4 +1,4 @@
-package com.igorini.togepibot.commands.general
+package com.igorini.togepibot.commands.general.duel
 
 import com.igorini.kotlintwitchbot.ext.randomViewerExcept
 import com.igorini.kotlintwitchbot.ext.viewerOnlineExcept

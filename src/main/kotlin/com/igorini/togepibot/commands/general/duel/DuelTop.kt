@@ -1,4 +1,4 @@
-package com.igorini.togepibot.commands.general
+package com.igorini.togepibot.commands.general.duel
 
 import com.igorini.togepibot.model.*
 import me.philippheuer.twitch4j.events.event.irc.ChannelMessageEvent

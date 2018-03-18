@@ -2,7 +2,7 @@ package com.igorini.togepibot
 
 import com.igorini.kotlintwitchbot.TwitchBot
 import com.igorini.togepibot.commands.general.Duel
-import com.igorini.togepibot.commands.general.DuelTop
+import com.igorini.togepibot.commands.general.duel.DuelTop
 import com.igorini.togepibot.model.Channels
 import com.igorini.togepibot.model.Duelists
 import com.igorini.togepibot.model.Users
