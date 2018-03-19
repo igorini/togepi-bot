@@ -16,7 +16,7 @@ class DuelWinrate : Command() {
 
     init {
         command = "винрейт"
-        commandAliases = arrayOf("winrate", "wr")
+        commandAliases = arrayOf("winrate", "Winrate", "WINRATE", "wr", "Винрейт", "ВИНРЕЙТ")
         category = "general"
         description = "Посмотреть топ винрейт дуэлянтов"
         requiredPermissions.add(CommandPermission.EVERYONE)

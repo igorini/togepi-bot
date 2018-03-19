@@ -15,7 +15,7 @@ class DuelTop : Command() {
 
     init {
         command = "топ"
-        commandAliases = arrayOf("топчик", "дуэльтоп")
+        commandAliases = arrayOf("топчик", "дуэльтоп", "Топ", "ТОП")
         category = "general"
         description = "Топ дуэлянтов"
         requiredPermissions.add(CommandPermission.EVERYONE)

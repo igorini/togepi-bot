@@ -35,7 +35,7 @@ class Duel : Command() {
 
     init {
         command = "дуэль"
-        commandAliases = arrayOf("duel", "fight", "поединок", "махач", "бой", "битва", "борьба", "вызов", "вызываю", "драка")
+        commandAliases = arrayOf("duel", "Duel", "DUEL", "fight", "поединок", "махач", "бой", "битва", "борьба", "вызов", "вызываю", "драка", "Дуэль", "ДУЭЛЬ", "дуель", "Дуель", "ДУЕЛЬ", "le'km")
         category = "general"
         description = "Вызовите оппонента на дуэль"
         requiredPermissions.add(CommandPermission.EVERYONE)
