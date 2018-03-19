@@ -10,6 +10,7 @@ import com.igorini.togepibot.model.Users
 import com.igorini.togepibot.properties.DatabaseProperties
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SchemaUtils.create
+import org.jetbrains.exposed.sql.SchemaUtils.createMissingTablesAndColumns
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.getProperty
@@ -17,6 +18,7 @@ import org.koin.standalone.getProperty
 /** Represents a twitch bot */
 class TogepiBot : TwitchBot(), KoinComponent {
     init {
+        // TODO: In kotlin-twitch-bot make a vararg function registerCommands
         registerCommand(Duel())
         registerCommand(DuelWinrate())
         registerCommand(DuelTop())
@@ -26,7 +28,6 @@ class TogepiBot : TwitchBot(), KoinComponent {
         Database.connect(getProperty(DatabaseProperties.url), driver = getProperty(DatabaseProperties.driver), user = getProperty(DatabaseProperties.username), password = getProperty(DatabaseProperties.password))
         transaction {
             create(Channels, Users, Duelists)
-            //createMissingTablesAndColumns(Duelists, Channels, Users)
         }
     }
 

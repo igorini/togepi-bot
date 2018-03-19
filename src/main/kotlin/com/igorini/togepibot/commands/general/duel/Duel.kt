@@ -23,7 +23,6 @@ class Duel : Command() {
     companion object {
         @JvmField val initialHP = 100
         @JvmField val minDamage = 5
-        @JvmField val ressurectHP = initialHP / 2
         @JvmField val baseDamage = 0.1
         @JvmField val winMessages = listOf("побеждает", "уничтожает", "бьет", "побивает", "кусает", "пинает", "делает кусь", "отвлекает")
         @JvmField val loseMessages = listOf("проигрывает")
@@ -56,8 +55,7 @@ class Duel : Command() {
             try {
                 opponentUsername = randomViewerExcept(messageEvent, botUsers.plus(username))
             } catch (e: Exception) {
-                println(e.message)
-                println(e.stackTrace)
+                logger.error(e) {}
                 return
             }
             if (opponentUsername == null) {
@@ -81,8 +79,7 @@ class Duel : Command() {
         try {
             opponentDisplayName = findDisplayName(opponentUsername)
         } catch (e: Exception) {
-            println(e.message)
-            println(e.stackTrace)
+            logger.error(e) {}
             return
         }
 
@@ -112,7 +109,6 @@ class Duel : Command() {
                 updateDuelist(loser, false, damageAfterInjury)
 
                 sendMessageToChannel(channelName, "@${winner.user.displayName} ${howMessage.random()} ${winMessages.random()} @${loser.user.displayName} и ${damageMessages.random()} $damageAfterInjury ${hpAliases.random()}. $emote ${crit?.message() ?: ""}${if (loser.hp < 0) loser.user.displayName + " " + deathMessages.random() else ""}")
-                //sendMessageToChannel(channelName, generateReply())
             }
         } catch (e: CommandException) {
             sendMessageToChannel(channelName, e.message)
@@ -120,13 +116,7 @@ class Duel : Command() {
         }
     }
 
-/*    private fun generateReply(winner: Duelist, loser: Duelist, emote: String, damage: Int): String {
-
-    }*/
-
-    // TODO: Refactor with inner functions
     fun updateDuelist(duelist: Duelist, won: Boolean, damage: Int) {
-        // TODO: Check if the second query to Duelists can be avoided
         with (duelist) {
             duels++
             if (won) {
@@ -140,20 +130,6 @@ class Duel : Command() {
             }
             winrate = recalculateWinrate()
         }
-        /*
-            var channel by Channel referencedOn Duelists.channel
-    var user by User referencedOn Duelists.user
-    var duels by Duelists.duels
-    var wins by Duelists.wins
-    var losses by Duelists.losses
-    var winrate by Duelists.winrate
-    var hp by Duelists.hp
-    var maxDamage by Duelists.maxDamage
-    var maxHp by Duelists.maxHp
-    var kills by Duelists.kills
-    var deaths by Duelists.deaths
-    var lastDuel by Duelists.lastDuel
-         */
     }
 
     // TODO: Move to an extension function to a class Command in kotlin-twitch-bot
