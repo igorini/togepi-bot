@@ -34,7 +34,7 @@ class DuelTop : Command() {
             val channel = Channels.findOrInsert(channelName)
             val user = Users.findOrInsert(username, messageEvent.user.displayName)
             val sortedDuelists = Duelist.all().filter { it.channel == channel }.sortedByDescending { it.hp }
-            sb.append(":${hpTop(sortedDuelists, channel, user)}")
+            sb.append("-${hpTop(sortedDuelists, channel, user)}")
         }
 
         sendMessageToChannel(channelName, sb.toString())
@@ -43,7 +43,7 @@ class DuelTop : Command() {
     private fun hpTop(sortedDuelists: List<Duelist>, channel: Channel, user: User): String {
         val sb = StringBuilder(50)
         val top3 = sortedDuelists.take(duelistsToDisplay)
-        top3.forEachIndexed { index, duelist -> sb.append(" ${index + 1}. ${duelist.user.displayName} - ${duelist.hp}") }
+        top3.forEachIndexed { index, duelist -> sb.append(" ${index + 1}. ${duelist.user.displayName}: ${duelist.hp}") }
 
         if (top3.none { it.channel == channel && it.user == user }) {
             sortedDuelists.withIndex().filter { it.value.channel == channel && it.value.user == user }.forEach { (index, duelist) -> sb.append(" ${index + 1}. ${duelist.user.displayName} - ${duelist.hp}") }

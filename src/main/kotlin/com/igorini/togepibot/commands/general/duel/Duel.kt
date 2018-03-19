@@ -13,6 +13,8 @@ import me.philippheuer.twitch4j.message.commands.Command
 import me.philippheuer.twitch4j.message.commands.CommandPermission
 import mu.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.joda.time.DateTime
+import org.joda.time.Period
 import kotlin.math.roundToInt
 
 /** Represents a command that performs a duel against someone in chat */
@@ -24,6 +26,7 @@ class Duel : Command() {
         @JvmField val initialHP = 100
         @JvmField val minDamage = 5
         @JvmField val baseDamage = 0.1
+        @JvmField val lossStunSec = 30
         @JvmField val winMessages = listOf("побеждает", "уничтожает", "бьет", "побивает", "кусает", "пинает", "делает кусь", "отвлекает")
         @JvmField val loseMessages = listOf("проигрывает")
         @JvmField val howMessage = listOf("безжалостно", "яростно", "без грамма совести", "с радостью", "со злорадством", "элегантно")
@@ -49,7 +52,7 @@ class Duel : Command() {
 
         val username = messageEvent.user.name.toLowerCase()
         val userDisplayName = messageEvent.user.displayName!!
-        var opponentUsername : String? = null
+        val opponentUsername: String?
 
         if (words.size == 1) {
             try {
@@ -89,7 +92,11 @@ class Duel : Command() {
                 val channel = Channels.findOrInsert(channelName)
                 var user = Duelists.findOrInsert(Users.findOrInsert(username, userDisplayName), channel)
 
-                if (user.hp <= 0) throw CommandException("Извините, ${user.user.displayName}, но вы мертвы. ( •́ﻩ•̀ )")
+                if (user.hp <= 0) throw CommandException("Извините, ${user.user.displayName}, но вы мертвы (${user.hp}). BibleThump Вас могут воскресить другие дуэлянты проигравшие Вам.")
+                if (user.available?.isAfterNow ?: false) {
+                    val stunDuration = Period(DateTime.now(), user.available)
+                    throw CommandException("Извините, ${user.user.displayName}, но недавнее поражение вас оглушило. Вы сможете снова подуэлиться через ${if (stunDuration.minutes > 0) stunDuration.minutes.toString() + " мин " else ""}${stunDuration.seconds} сек")
+                }
 
                 var opponent = Duelists.findOrInsert(Users.findOrInsert(opponentUsername, opponentDisplayName), channel)
                 val duelists = listOf(user, opponent)
@@ -105,8 +112,8 @@ class Duel : Command() {
 
                 val emote = if (winner == user) positiveEmotes.random() else negativeEmotes.random()
 
-                updateDuelist(winner, true, damageAfterInjury)
-                updateDuelist(loser, false, damageAfterInjury)
+                updateDuelist(winner, true, damageAfterInjury, crit)
+                updateDuelist(loser, false, damageAfterInjury, crit)
 
                 sendMessageToChannel(channelName, "@${winner.user.displayName} ${howMessage.random()} ${winMessages.random()} @${loser.user.displayName} и ${damageMessages.random()} $damageAfterInjury ${hpAliases.random()}. $emote ${crit?.message() ?: ""}${if (loser.hp < 0) loser.user.displayName + " " + deathMessages.random() else ""}")
             }
@@ -116,7 +123,7 @@ class Duel : Command() {
         }
     }
 
-    fun updateDuelist(duelist: Duelist, won: Boolean, damage: Int) {
+    fun updateDuelist(duelist: Duelist, won: Boolean, damage: Int, crit: Crit?) {
         with (duelist) {
             duels++
             if (won) {
@@ -127,6 +134,7 @@ class Duel : Command() {
                 losses++
                 hp -= damage
                 if (hp <= 0) deaths++
+                available = DateTime.now().plusSeconds(crit?.stunSec() ?: lossStunSec)
             }
             winrate = recalculateWinrate()
         }
