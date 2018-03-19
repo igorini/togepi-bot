@@ -5,20 +5,32 @@ import com.igorini.kotlintwitchbot.ext.viewerOnlineExcept
 import com.igorini.togepibot.TogepiBot.Companion.botUsers
 import com.igorini.togepibot.TogepiBot.Companion.negativeEmotes
 import com.igorini.togepibot.TogepiBot.Companion.positiveEmotes
+import com.igorini.togepibot.commands.general.duel.crit.*
+import com.igorini.togepibot.ext.random
 import com.igorini.togepibot.model.*
 import me.philippheuer.twitch4j.events.event.irc.ChannelMessageEvent
 import me.philippheuer.twitch4j.message.commands.Command
 import me.philippheuer.twitch4j.message.commands.CommandPermission
+import mu.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.math.BigDecimal
+import kotlin.math.roundToInt
 
 /** Represents a command that performs a duel against someone in chat */
 class Duel : Command() {
 
+    val logger = KotlinLogging.logger {}
+
     companion object {
         @JvmField val initialHP = 100
+        @JvmField val minDamage = 5
         @JvmField val ressurectHP = initialHP / 2
         @JvmField val baseDamage = 0.1
+        @JvmField val winMessages = listOf("побеждает", "уничтожает", "бьет", "побивает", "кусает", "пинает", "делает кусь", "отвлекает")
+        @JvmField val loseMessages = listOf("проигрывает")
+        @JvmField val howMessage = listOf("безжалостно", "яростно", "без грамма совести", "с радостью", "со злорадством", "элегантно")
+        @JvmField val damageMessages = listOf("пожирает", "отжирается на", "лайфстилит", "отнимает", "лечит", "растет на", "восстанавливает")
+        @JvmField val hpAliases = listOf("хп")
+        @JvmField val deathMessages = listOf("умирает")
     }
 
     init {
@@ -38,10 +50,16 @@ class Duel : Command() {
 
         val username = messageEvent.user.name.toLowerCase()
         val userDisplayName = messageEvent.user.displayName!!
-        val opponentUsername : String?
+        var opponentUsername : String? = null
 
         if (words.size == 1) {
-            opponentUsername = randomViewerExcept(messageEvent, botUsers.plus(username))
+            try {
+                opponentUsername = randomViewerExcept(messageEvent, botUsers.plus(username))
+            } catch (e: Exception) {
+                println(e.message)
+                println(e.stackTrace)
+                return
+            }
             if (opponentUsername == null) {
                 // TODO: Modify kotlin-twitch-bot and throw an exception instead
                 sendMessageToChannel(channelName, "Достойных соперников не обнаружено. Kappa")
@@ -59,76 +77,83 @@ class Duel : Command() {
             }
         }
 
-        val opponentDisplayName = findDisplayName(opponentUsername)
-
-        var winner: User? = null
-        var user: User? = null
-        var opponent: User?
-        var channel: Channel?
+        val opponentDisplayName : String?
+        try {
+            opponentDisplayName = findDisplayName(opponentUsername)
+        } catch (e: Exception) {
+            println(e.message)
+            println(e.stackTrace)
+            return
+        }
 
         // TODO: Split into multiple transactions?
-        transaction {
-            channel = findChannelOrInsert(channelName)
-            user = findUserOrInsert(username, userDisplayName)
-            opponent = findUserOrInsert(opponentUsername, opponentDisplayName)
-            winner = listOf(user, opponent).shuffled().first()
+        try {
+            transaction {
+                val channel = Channels.findOrInsert(channelName)
+                var user = Duelists.findOrInsert(Users.findOrInsert(username, userDisplayName), channel)
 
-            upsertDuelist(channel!!, user!!, winner!!)
-            upsertDuelist(channel!!, opponent!!, winner!!)
-        }
+                if (user.hp <= 0) throw CommandException("Извините, ${user.user.displayName}, но вы мертвы. ( •́ﻩ•̀ )")
 
-        val emote = if (winner == user) positiveEmotes.shuffled().first() else negativeEmotes.shuffled().first()
+                var opponent = Duelists.findOrInsert(Users.findOrInsert(opponentUsername, opponentDisplayName), channel)
+                val duelists = listOf(user, opponent)
+                val winner = duelists.random()
+                val loser = (duelists - winner).first()
+                val base = (duelists.maxBy { it.hp }!!.hp * baseDamage)
+                val crit = if (winner == user) Crit.proc() else null
+                val damage = crit?.damage(base) ?: base.roundToInt()
 
-        val replies = listOf(
-                "За право стать величайшим мастером боевых искусств всех времён, $userDisplayName вызывает на бой $opponentDisplayName! ʕง•ᴥ•ʔง Побеждает ${winner!!.displayName}! $emote",
-                "$userDisplayName vs $opponentDisplayName. FIGHT! ʕง•ᴥ•ʔง ${winner!!.displayName} wins! Flawless victory! $emote",
-                "$opponentDisplayName принимает вызов $userDisplayName! ʕง•ᴥ•ʔง В этот раз победу одерживает ${winner!!.displayName}! $emote",
-                "В решающей битве за Лордерон PurpleStar сошлись прославленные герои - $userDisplayName и $opponentDisplayName! Победа за ${winner!!.displayName}! $emote")
+                // TODO: add kills if killed
+                var damageAfterInjury = if (damage > loser.hp) loser.hp else damage
+                if (damageAfterInjury < minDamage) damageAfterInjury = minDamage
 
-        sendMessageToChannel(channelName, replies.shuffled().first())
-    }
+                val emote = if (winner == user) positiveEmotes.random() else negativeEmotes.random()
 
-    // TODO: Call a function that does this in the background
-    private fun findChannelOrInsert(channelName: String): Channel {
-        val result = Channel.find { Channels.name eq channelName }
-        return if (result.empty()) Channel.new { name = channelName } else result.first()
-    }
+                updateDuelist(winner, true, damageAfterInjury)
+                updateDuelist(loser, false, damageAfterInjury)
 
-    private fun findUserOrInsert(username: String, userDisplayName: String): User {
-        val result = User.find { Users.name eq username }
-        return if (result.empty()) {
-            User.new {
-                name = username
-                displayName = userDisplayName
+                sendMessageToChannel(channelName, "@${winner.user.displayName} ${howMessage.random()} ${winMessages.random()} @${loser.user.displayName} и ${damageMessages.random()} $damageAfterInjury ${hpAliases.random()}. $emote ${crit?.message() ?: ""}${if (loser.hp < 0) loser.user.displayName + " " + deathMessages.random() else ""}")
+                //sendMessageToChannel(channelName, generateReply())
             }
-        } else result.first()
-    }
-
-    private fun upsertDuelist(channel: Channel, user: User, winner: User) = if (channel.duelists.any { it.user == user }) {
-        updateDuelist(channel, user, winner == user)
-    } else {
-        insertDuelist(channel, user, winner == user)
-    }
-
-    private fun insertDuelist(duelistChannel: Channel, duelistUser: User, won: Boolean) {
-        Duelist.new {
-            channel = duelistChannel
-            user = duelistUser
-            duels = 1
-            wins = if (won) 1 else 0
-            losses = if (won) 0 else 1
-            winrate = if (won) BigDecimal("100.0000") else BigDecimal("0.0000")
+        } catch (e: CommandException) {
+            sendMessageToChannel(channelName, e.message)
+            return
         }
     }
+
+/*    private fun generateReply(winner: Duelist, loser: Duelist, emote: String, damage: Int): String {
+
+    }*/
 
     // TODO: Refactor with inner functions
-    private fun updateDuelist(duelistChannel: Channel, duelistUser: User, won: Boolean) {
+    fun updateDuelist(duelist: Duelist, won: Boolean, damage: Int) {
         // TODO: Check if the second query to Duelists can be avoided
-        with (duelistChannel.duelists.find { it.user == duelistUser }!!) {
+        with (duelist) {
             duels++
-            if (won) wins++ else losses++
+            if (won) {
+                wins++
+                hp += damage
+                if (damage > maxDamage) maxDamage = damage
+            } else {
+                losses++
+                hp -= damage
+                if (hp <= 0) deaths++
+            }
             winrate = recalculateWinrate()
         }
+        /*
+            var channel by Channel referencedOn Duelists.channel
+    var user by User referencedOn Duelists.user
+    var duels by Duelists.duels
+    var wins by Duelists.wins
+    var losses by Duelists.losses
+    var winrate by Duelists.winrate
+    var hp by Duelists.hp
+    var maxDamage by Duelists.maxDamage
+    var maxHp by Duelists.maxHp
+    var kills by Duelists.kills
+    var deaths by Duelists.deaths
+    var lastDuel by Duelists.lastDuel
+         */
     }
 
     // TODO: Move to an extension function to a class Command in kotlin-twitch-bot

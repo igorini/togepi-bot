@@ -2,6 +2,7 @@ package com.igorini.togepibot
 
 import com.igorini.kotlintwitchbot.TwitchBot
 import com.igorini.togepibot.commands.general.duel.Duel
+import com.igorini.togepibot.commands.general.duel.DuelTop
 import com.igorini.togepibot.commands.general.duel.DuelWinrate
 import com.igorini.togepibot.model.Channels
 import com.igorini.togepibot.model.Duelists
@@ -18,6 +19,7 @@ class TogepiBot : TwitchBot(), KoinComponent {
     init {
         registerCommand(Duel())
         registerCommand(DuelWinrate())
+        registerCommand(DuelTop())
     }
 
     fun initDatabase() {
@@ -32,5 +34,6 @@ class TogepiBot : TwitchBot(), KoinComponent {
         @JvmField val botUsers = listOf("moobot", "nightbot", "mirrobot", "togepibot", "hereforde")
         @JvmField val positiveEmotes = listOf("VoHiYo", "BloodTrail", "PogChamp", "CoolCat", "SeemsGood", "TehePelo")
         @JvmField val negativeEmotes = listOf("BibleThump", "FailFish", "r6rekt", "DarkMode", "NotLikeThis", "BabyRage", "SwiftRage")
+        @JvmField val percents = (1..100).toList()
     }
 }

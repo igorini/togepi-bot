@@ -11,6 +11,16 @@ object Users : IntIdTable() {
     val name= varchar("name", 50)
     val displayName = varchar("displayName", 50).nullable()
     val bot = bool("bot").default(false)
+
+    fun findOrInsert(username: String, userDisplayName: String): User {
+        val result = User.find { name eq username }
+        return if (result.empty()) {
+            User.new {
+                name = username
+                displayName = userDisplayName
+            }
+        } else result.first()
+    }
 }
 
 @Suppress("unused")

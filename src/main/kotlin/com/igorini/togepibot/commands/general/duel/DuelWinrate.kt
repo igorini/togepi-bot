@@ -29,11 +29,11 @@ class DuelWinrate : Command() {
         val channelName = messageEvent!!.channel.name!!
         val username = messageEvent.user.name.toLowerCase()
 
-        val sb = StringBuilder("Топ винрейт")
+        val sb = StringBuilder("Топ дуэлянтов по винрейту")
 
         transaction {
-            val channel = findChannelOrInsert(channelName)
-            val user = findUserOrInsert(username, messageEvent.user.displayName)
+            val channel = Channels.findOrInsert(channelName)
+            val user = Users.findOrInsert(username, messageEvent.user.displayName)
             val sortedDuelists = Duelist.all().filter { it.channel == channel }.sortedByDescending { it.winrate }
             if (sortedDuelists.isEmpty()) {
                 throw IllegalArgumentException("Не найдено состоявшихся дуэлей")
@@ -60,19 +60,4 @@ class DuelWinrate : Command() {
     }
 
     private fun userFoughtEnoughDuels(channel: Channel, user: User, sortedDuelists: List<Duelist>) = sortedDuelists.filter { it.channel == channel && it.user == user }.firstOrNull()?.let { it.duels >= minimumAmountOfDuels } ?: false
-
-    private fun findChannelOrInsert(channelName: String): Channel {
-        val result = Channel.find { Channels.name eq channelName }
-        return if (result.empty()) Channel.new { name = channelName } else result.first()
-    }
-
-    private fun findUserOrInsert(username: String, userDisplayName: String): User {
-        val result = User.find { Users.name eq username }
-        return if (result.empty()) {
-            User.new {
-                name = username
-                displayName = userDisplayName
-            }
-        } else result.first()
-    }
 }

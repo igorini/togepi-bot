@@ -9,6 +9,11 @@ import org.jetbrains.exposed.dao.IntIdTable
 @Suppress("unused")
 object Channels : IntIdTable() {
     val name= varchar("name", 50)
+
+    fun findOrInsert(channelName: String): Channel {
+        val result = Channel.find { name eq channelName }
+        return if (result.empty()) Channel.new { name = channelName } else result.first()
+    }
 }
 
 @Suppress("unused")
@@ -18,4 +23,3 @@ class Channel(id: EntityID<Int>) : IntEntity(id) {
     var name by Channels.name
     val duelists by Duelist referrersOn Duelists.channel
 }
-
