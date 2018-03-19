@@ -16,10 +16,11 @@ interface Crit {
         }
     }
 
-    fun multiplier() : Double
-    fun chance() : Int
-    fun nameAliases() : List<String>
+    fun multiplier(): Double
+    fun chance(): Int
+    fun nameAliases(): List<String>
     fun emoteAliases(): List<String>
+    fun stunSec(): Int
     fun message() = "${nameAliases().random()} (x${multiplier().roundToInt()})! ${emoteAliases().random()}"
     fun damage(base: Double) = (base * multiplier()).roundToInt()
 }
