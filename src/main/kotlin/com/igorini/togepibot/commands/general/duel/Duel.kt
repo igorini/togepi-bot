@@ -27,7 +27,7 @@ class Duel : Command() {
         @JvmField val initialHP = 100
         @JvmField val minDamage = 5
         @JvmField val baseDamage = 0.1
-        @JvmField val commandCd = 30
+        @JvmField val commandCd = 40
         @JvmField val winMessages = listOf("побеждает", "уничтожает", "бьет", "побивает", "кусает", "пинает", "делает кусь", "отвлекает")
         @JvmField val loseMessages = listOf("проигрывает")
         @JvmField val howMessage = listOf("безжалостно", "яростно", "без грамма совести", "с радостью", "со злорадством", "элегантно")
@@ -57,6 +57,7 @@ class Duel : Command() {
 
         if (words.size == 1) {
             try {
+                // TODO: In kotlin-twitch-bot cache viewer list
                 opponentUsername = randomViewerExcept(messageEvent, botUsers.plus(username))
             } catch (e: Exception) {
                 logger.error(e) {}
@@ -108,15 +109,19 @@ class Duel : Command() {
                 val damage = crit?.damage(base) ?: base.roundToInt()
 
                 // TODO: add kills if killed
-                var damageAfterInjury = if (damage > loser.hp) loser.hp else damage
+                var killed = false
+                var damageAfterInjury = if (damage >= loser.hp){
+                    if (loser.hp > 0) killed = true
+                    loser.hp
+                } else damage
                 if (damageAfterInjury < minDamage) damageAfterInjury = minDamage
 
                 val emote = if (winner == user) positiveEmotes.random() else negativeEmotes.random()
 
-                updateDuelist(winner, true, damageAfterInjury, crit, winner == user)
-                updateDuelist(loser, false, damageAfterInjury, crit, loser == user)
+                updateDuelist(winner, true, damageAfterInjury, crit, winner == user, killed)
+                updateDuelist(loser, false, damageAfterInjury, crit, loser == user, killed)
 
-                sendMessageToChannel(channelName, "@${winner.user.displayName} ${howMessage.random()} ${winMessages.random()} @${loser.user.displayName} и ${damageMessages.random()} $damageAfterInjury ${hpAliases.random()}. $emote ${crit?.message() ?: ""}${if (loser.hp < 0) " " + loser.user.displayName + " " + deathMessages.random() else ""}")
+                sendMessageToChannel(channelName, "@${winner.user.displayName} ${howMessage.random()} ${winMessages.random()} @${loser.user.displayName} и ${damageMessages.random()} $damageAfterInjury ${hpAliases.random()}. $emote ${crit?.message() ?: ""}${if (killed) " " + loser.user.displayName + " " + deathMessages.random() else ""}")
             }
         } catch (e: CommandException) {
             sendMessageToChannel(channelName, e.message)
@@ -124,7 +129,7 @@ class Duel : Command() {
         }
     }
 
-    fun updateDuelist(duelist: Duelist, won: Boolean, damage: Int, crit: Crit?, initiator: Boolean) {
+    fun updateDuelist(duelist: Duelist, won: Boolean, damage: Int, crit: Crit?, initiator: Boolean, killed: Boolean) {
         with (duelist) {
             duels++
             if (initiator) available = DateTime.now().plusSeconds(commandCd)
@@ -132,10 +137,12 @@ class Duel : Command() {
                 wins++
                 hp += damage
                 if (damage > maxDamage) maxDamage = damage
+                if (killed) kills++
+                if (hp > maxHp) maxHp = hp
             } else {
                 losses++
                 hp -= damage
-                if (hp <= 0) deaths++
+                if (killed) deaths++
                 crit?.let { available = DateTime.now().plusSeconds(crit.stunSec()) }
             }
             winrate = recalculateWinrate()
