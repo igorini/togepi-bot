@@ -46,7 +46,7 @@ class DuelTop : Command() {
         top3.forEachIndexed { index, duelist -> sb.append(" ${index + 1}. ${duelist.user.displayName}: ${duelist.hp}") }
 
         if (top3.none { it.channel == channel && it.user == user }) {
-            sortedDuelists.withIndex().filter { it.value.channel == channel && it.value.user == user }.forEach { (index, duelist) -> sb.append(" ${index + 1}. ${duelist.user.displayName} - ${duelist.hp}") }
+            sortedDuelists.withIndex().filter { it.value.channel == channel && it.value.user == user }.forEach { (index, duelist) -> sb.append(" ${index + 1}. ${duelist.user.displayName}: ${duelist.hp}") }
         }
 
         return sb.toString()

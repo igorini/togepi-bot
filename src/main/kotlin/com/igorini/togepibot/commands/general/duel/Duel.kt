@@ -34,7 +34,10 @@ class Duel : Command() {
         @JvmField val howMessage = listOf("безжалостно", "яростно", "без грамма совести", "с радостью", "со злорадством", "элегантно")
         @JvmField val damageMessages = listOf("пожирает", "отжирается на", "лайфстилит", "отнимает", "лечит", "растет на", "восстанавливает")
         @JvmField val hpAliases = listOf("хп")
+        @JvmField val deathEmotes = listOf("riPepperonis")
         @JvmField val deathMessages = listOf("умирает")
+        @JvmField val ressurectEmotes = listOf("BlessRNG")
+        @JvmField val ressurectMessages = listOf("возвращается к жизни")
     }
 
     init {
@@ -96,7 +99,7 @@ class Duel : Command() {
                 val channel = Channels.findOrInsert(channelName)
                 var user = Duelists.findOrInsert(Users.findOrInsert(username, userDisplayName), channel)
 
-                if (user.hp <= 0) throw CommandException("Извините, ${user.user.displayName}, но Вы мертвы (${user.hp} хп). BibleThump Вас могут воскресить другие дуэлянты.")
+                if (user.hp <= 0) throw CommandException("Извините, @${user.user.displayName}, но Вы мертвы (${user.hp} хп). BibleThump Вас могут воскресить другие дуэлянты.")
                 if (user.user.name != togepiBotAdmin && user.available?.isAfterNow ?: false) {
                     val stunDuration = Period(DateTime.now(), user.available)
                     throw CommandException("${user.user.displayName}, Вы сможете снова подуэлиться через ${if (stunDuration.minutes > 0) stunDuration.minutes.toString() + " мин " else ""}${stunDuration.seconds} сек")
@@ -117,13 +120,38 @@ class Duel : Command() {
                     loser.hp
                 } else damage
                 if (damageAfterInjury < minDamage) damageAfterInjury = minDamage
+                val ressurected = winner.hp <= 0 && winner.hp + damageAfterInjury > 0
 
                 val emote = if (winner == user) positiveEmotes.random() else negativeEmotes.random()
 
-                updateDuelist(winner, true, damageAfterInjury, crit, winner == user, killed, randomViewer)
-                updateDuelist(loser, false, damageAfterInjury, crit, loser == user, killed, randomViewer)
+                fun updateDuelist(duelist: Duelist, won: Boolean) {
+                    with (duelist) {
+                        duels++
+                        val initiator = duelist == user
+                        if (initiator) {
+                            available = DateTime.now().plusSeconds(if (randomViewer) cooldownForRandom else cooldownForSpecific)
+                            if (ressurected) ressurects++
+                        }
+                        if (won) {
+                            wins++
+                            hp += damage
+                            if (damage > maxDamage) maxDamage = damage
+                            if (killed) kills++
+                            if (hp > maxHp) maxHp = hp
+                        } else {
+                            losses++
+                            hp -= damage
+                            if (killed) deaths++
+                            crit?.let { available = DateTime.now().plusSeconds(crit.stunSec()) }
+                        }
+                        winrate = recalculateWinrate()
+                    }
+                }
 
-                sendMessageToChannel(channelName, "@${winner.user.displayName} ${howMessage.random()} ${winMessages.random()} @${loser.user.displayName} и ${damageMessages.random()} $damageAfterInjury ${hpAliases.random()}. $emote ${crit?.message() ?: ""}${if (killed) " " + loser.user.displayName + " " + deathMessages.random() else ""}")
+                updateDuelist(winner, true)
+                updateDuelist(loser, false)
+
+                sendMessageToChannel(channelName, "@${winner.user.displayName} ${howMessage.random()} ${winMessages.random()} @${loser.user.displayName} и ${damageMessages.random()} $damageAfterInjury ${hpAliases.random()}. $emote ${crit?.message() ?: ""}${if (killed) " @" + loser.user.displayName + " " + deathMessages.random() + " " + deathEmotes.random() else ""}${if (ressurected) " @" + winner.user.displayName + " " + ressurectMessages.random() + " " + ressurectEmotes.random() else ""}")
             }
         } catch (e: CommandException) {
             sendMessageToChannel(channelName, e.message)

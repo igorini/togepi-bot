@@ -19,6 +19,7 @@ object Duelists : IntIdTable() {
     val maxHp = integer("max_hp").default(Duel.initialHP)
     val kills = integer("kills").default(0)
     val deaths = integer("deaths").default(0)
+    val ressurects = integer("ressurects").default(0)
     val available = datetime("available").nullable()
 
     fun findOrInsert(duelistUser: User, duelistChannel: Channel) = duelistChannel.duelists.find { it.user == duelistUser } ?: Duelist.new {
@@ -42,6 +43,7 @@ class Duelist(id: EntityID<Int>) : IntEntity(id) {
     var maxHp by Duelists.maxHp
     var kills by Duelists.kills
     var deaths by Duelists.deaths
+    var ressurects by Duelists.ressurects
     var available by Duelists.available
 }
 
