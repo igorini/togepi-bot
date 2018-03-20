@@ -5,6 +5,7 @@ import com.igorini.kotlintwitchbot.ext.viewerOnlineExcept
 import com.igorini.togepibot.TogepiBot.Companion.botUsers
 import com.igorini.togepibot.TogepiBot.Companion.negativeEmotes
 import com.igorini.togepibot.TogepiBot.Companion.positiveEmotes
+import com.igorini.togepibot.TogepiBot.Companion.togepiBotAdmin
 import com.igorini.togepibot.commands.general.duel.crit.*
 import com.igorini.togepibot.ext.random
 import com.igorini.togepibot.model.*
@@ -26,7 +27,7 @@ class Duel : Command() {
         @JvmField val initialHP = 100
         @JvmField val minDamage = 5
         @JvmField val baseDamage = 0.1
-        @JvmField val lossStunSec = 30
+        @JvmField val commandCd = 30
         @JvmField val winMessages = listOf("побеждает", "уничтожает", "бьет", "побивает", "кусает", "пинает", "делает кусь", "отвлекает")
         @JvmField val loseMessages = listOf("проигрывает")
         @JvmField val howMessage = listOf("безжалостно", "яростно", "без грамма совести", "с радостью", "со злорадством", "элегантно")
@@ -92,10 +93,10 @@ class Duel : Command() {
                 val channel = Channels.findOrInsert(channelName)
                 var user = Duelists.findOrInsert(Users.findOrInsert(username, userDisplayName), channel)
 
-                if (user.hp <= 0) throw CommandException("Извините, ${user.user.displayName}, но вы мертвы (${user.hp}). BibleThump Вас могут воскресить другие дуэлянты проигравшие Вам.")
-                if (user.available?.isAfterNow ?: false) {
+                if (user.hp <= 0) throw CommandException("Извините, ${user.user.displayName}, но Вы мертвы (${user.hp} хп). BibleThump Вас могут воскресить другие дуэлянты.")
+                if (user.user.name != togepiBotAdmin && user.available?.isAfterNow ?: false) {
                     val stunDuration = Period(DateTime.now(), user.available)
-                    throw CommandException("Извините, ${user.user.displayName}, но недавнее поражение вас оглушило. Вы сможете снова подуэлиться через ${if (stunDuration.minutes > 0) stunDuration.minutes.toString() + " мин " else ""}${stunDuration.seconds} сек")
+                    throw CommandException("${user.user.displayName}, Вы сможете снова подуэлиться через ${if (stunDuration.minutes > 0) stunDuration.minutes.toString() + " мин " else ""}${stunDuration.seconds} сек")
                 }
 
                 var opponent = Duelists.findOrInsert(Users.findOrInsert(opponentUsername, opponentDisplayName), channel)
@@ -112,10 +113,10 @@ class Duel : Command() {
 
                 val emote = if (winner == user) positiveEmotes.random() else negativeEmotes.random()
 
-                updateDuelist(winner, true, damageAfterInjury, crit)
-                updateDuelist(loser, false, damageAfterInjury, crit)
+                updateDuelist(winner, true, damageAfterInjury, crit, winner == user)
+                updateDuelist(loser, false, damageAfterInjury, crit, loser == user)
 
-                sendMessageToChannel(channelName, "@${winner.user.displayName} ${howMessage.random()} ${winMessages.random()} @${loser.user.displayName} и ${damageMessages.random()} $damageAfterInjury ${hpAliases.random()}. $emote ${crit?.message() ?: ""}${if (loser.hp < 0) loser.user.displayName + " " + deathMessages.random() else ""}")
+                sendMessageToChannel(channelName, "@${winner.user.displayName} ${howMessage.random()} ${winMessages.random()} @${loser.user.displayName} и ${damageMessages.random()} $damageAfterInjury ${hpAliases.random()}. $emote ${crit?.message() ?: ""}${if (loser.hp < 0) " " + loser.user.displayName + " " + deathMessages.random() else ""}")
             }
         } catch (e: CommandException) {
             sendMessageToChannel(channelName, e.message)
@@ -123,9 +124,10 @@ class Duel : Command() {
         }
     }
 
-    fun updateDuelist(duelist: Duelist, won: Boolean, damage: Int, crit: Crit?) {
+    fun updateDuelist(duelist: Duelist, won: Boolean, damage: Int, crit: Crit?, initiator: Boolean) {
         with (duelist) {
             duels++
+            if (initiator) available = DateTime.now().plusSeconds(commandCd)
             if (won) {
                 wins++
                 hp += damage
@@ -134,7 +136,7 @@ class Duel : Command() {
                 losses++
                 hp -= damage
                 if (hp <= 0) deaths++
-                available = DateTime.now().plusSeconds(crit?.stunSec() ?: lossStunSec)
+                crit?.let { available = DateTime.now().plusSeconds(crit.stunSec()) }
             }
             winrate = recalculateWinrate()
         }

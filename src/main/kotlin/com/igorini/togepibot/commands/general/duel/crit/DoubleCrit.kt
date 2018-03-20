@@ -8,5 +8,5 @@ object DoubleCrit : Crit {
     override fun chance() = 20
     override fun nameAliases() = listOf("Критический урон")
     override fun emoteAliases() = listOf("KAPOW", "MorphinTime")
-    override fun stunSec() = 60 * UltraCrit.multiplier().roundToInt()
+    override fun stunSec() = 60 * multiplier().roundToInt()
 }
