@@ -29,10 +29,10 @@ class Duel : Command() {
         @JvmField val baseDamage = 0.1
         @JvmField val cooldownForRandom = 30
         @JvmField val cooldownForSpecific = 60
-        @JvmField val winMessages = listOf("побеждает", "уничтожает", "бьет", "побивает", "кусает", "пинает", "делает кусь", "отвлекает")
+        @JvmField val winMessages = listOf("побеждает", "уничтожает", "бьет", "побивает", "кусает", "пинает", "делает кусь", "отвлекает", "делает вжик-вжик", "атакует", "нападает на", "пронзает", "ранит", "даёт пощёчину", "даёт щелбан", "даёт подзатыльник", "даёт леща", "шлёпает")
         @JvmField val loseMessages = listOf("проигрывает")
-        @JvmField val howMessage = listOf("безжалостно", "яростно", "без грамма совести", "с радостью", "со злорадством", "элегантно")
-        @JvmField val damageMessages = listOf("пожирает", "отжирается на", "лайфстилит", "отнимает", "лечит", "растет на", "восстанавливает")
+        @JvmField val howMessage = listOf("безжалостно", "яростно", "без грамма совести", "с радостью", "со злорадством", "элегантно", "со стилем", "резко", "сильно", "мощно", "быстро", "увесисто", "жестоко", "коварно", "мило", "с любовью", "отчаяно")
+        @JvmField val damageMessages = listOf("пожирает", "крадёт", "лайфстилит", "отнимает", "лечит", "растёт на", "восстанавливает", "похищает", "забирает")
         @JvmField val hpAliases = listOf("хп")
         @JvmField val deathEmotes = listOf("riPepperonis")
         @JvmField val deathMessages = listOf("умирает")
