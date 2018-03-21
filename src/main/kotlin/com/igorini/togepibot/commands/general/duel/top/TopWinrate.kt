@@ -1,4 +1,4 @@
-package com.igorini.togepibot.commands.general.duel
+package com.igorini.togepibot.commands.general.duel.top
 
 import com.igorini.togepibot.model.*
 import me.philippheuer.twitch4j.events.event.irc.ChannelMessageEvent
@@ -8,7 +8,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.math.BigDecimal
 
 /** Represents a command that performs a duel against someone in chat */
-class DuelWinrate : Command() {
+class TopWinrate : Command() {
     companion object {
         @JvmField val minimumAmountOfDuels = 10
         @JvmField val duelistsToDisplay = 3
@@ -40,7 +40,7 @@ class DuelWinrate : Command() {
             }
 
             val userFoughtEnoughDuels = userFoughtEnoughDuels(channel, user, sortedDuelists)
-            if (!userFoughtEnoughDuels) sb.append(" (минимум $minimumAmountOfDuels дуэлей)")
+            if (!userFoughtEnoughDuels) sb.append(" (минимум ${minimumAmountOfDuels} дуэлей)")
             sb.append(":${topWinrate(sortedDuelists, channel, user, userFoughtEnoughDuels)}")
         }
 
@@ -50,10 +50,10 @@ class DuelWinrate : Command() {
     private fun topWinrate(sortedDuelists: List<Duelist>, channel: Channel, user: User, userFoughtEnoughDuels: Boolean): String {
         val sb = StringBuilder(50)
         val top3 = sortedDuelists.filter { it.duels >= minimumAmountOfDuels }.take(duelistsToDisplay)
-        top3.forEachIndexed { index, duelist -> sb.append(" ${index + 1}. ${duelist.user.displayName} - ${duelist.winrate.setScale(2, BigDecimal.ROUND_DOWN)}%") }
+        top3.forEachIndexed { index, duelist -> sb.append(" ${index + 1}. ${duelist.user.displayName}: ${duelist.winrate.setScale(2, BigDecimal.ROUND_DOWN)}%") }
 
         if (userFoughtEnoughDuels && top3.none { it.channel == channel && it.user == user }) {
-            sortedDuelists.withIndex().filter { it.value.channel == channel && it.value.user == user }.forEach { (index, duelist) -> sb.append(" ${index + 1}. ${duelist.user.displayName} - ${duelist.winrate.setScale(2, BigDecimal.ROUND_DOWN)}%") }
+            sortedDuelists.withIndex().filter { it.value.channel == channel && it.value.user == user }.forEach { (index, duelist) -> sb.append(" ${index + 1}. ${duelist.user.displayName}: ${duelist.winrate.setScale(2, BigDecimal.ROUND_DOWN)}%") }
         }
 
         return sb.toString()

@@ -134,13 +134,13 @@ class Duel : Command() {
                         }
                         if (won) {
                             wins++
-                            hp += damage
-                            if (damage > maxDamage) maxDamage = damage
+                            hp += damageAfterInjury
+                            if (damageAfterInjury > maxDamage) maxDamage = damageAfterInjury
                             if (killed) kills++
                             if (hp > maxHp) maxHp = hp
                         } else {
                             losses++
-                            hp -= damage
+                            hp -= damageAfterInjury
                             if (killed) deaths++
                             crit?.let { available = DateTime.now().plusSeconds(crit.stunSec()) }
                         }
