@@ -29,10 +29,11 @@ class Duel : Command() {
         @JvmField val baseDamage = 0.1
         @JvmField val cooldownForRandom = 30
         @JvmField val cooldownForSpecific = 60
-        @JvmField val winMessages = listOf("побеждает", "уничтожает", "бьет", "побивает", "кусает", "пинает", "делает кусь", "отвлекает", "делает вжик-вжик", "атакует", "нападает на", "пронзает", "ранит", "даёт пощёчину", "даёт щелбан", "даёт подзатыльник", "даёт леща", "шлёпает")
+        // TODO: For variety add with what
+        @JvmField val winMessages = listOf("побеждает", "уничтожает", "бьёт", "побивает", "кусает", "пинает", "делает кусь", "отвлекает", "делает вжик-вжик", "атакует", "нападает на", "пронзает", "ранит", "даёт пощёчину", "даёт щелбан", "даёт подзатыльник", "даёт леща", "шлёпает", "унижает", "ставит на колени", "царапает")
         @JvmField val loseMessages = listOf("проигрывает")
-        @JvmField val howMessage = listOf("безжалостно", "яростно", "без грамма совести", "с радостью", "со злорадством", "элегантно", "со стилем", "резко", "сильно", "мощно", "быстро", "увесисто", "жестоко", "коварно", "мило", "с любовью", "отчаяно")
-        @JvmField val damageMessages = listOf("пожирает", "крадёт", "лайфстилит", "отнимает", "лечит", "растёт на", "восстанавливает", "похищает", "забирает")
+        @JvmField val howMessage = listOf("безжалостно", "яростно", "без грамма совести", "с радостью", "со злорадством", "элегантно", "стильно", "резко", "сильно", "мощно", "быстро", "увесисто", "жестоко", "коварно", "мило", "с любовью", "отчаянно", "шутя", "как боженька", "нежно", "ласково", "аккуратно", "точно", "с гордостью", "с честью", "отважно", "нелепо", "неуклюже", "без сожаления")
+        @JvmField val damageMessages = listOf("пожирает", "крадёт", "лайфстилит", "отнимает", "лечит", "растёт на", "восстанавливает", "похищает", "забирает", "высасывает", "поглощает")
         @JvmField val hpAliases = listOf("хп")
         @JvmField val deathEmotes = listOf("riPepperonis")
         @JvmField val deathMessages = listOf("умирает")
@@ -151,7 +152,7 @@ class Duel : Command() {
                 updateDuelist(winner, true)
                 updateDuelist(loser, false)
 
-                sendMessageToChannel(channelName, "@${winner.user.displayName} ${howMessage.random()} ${winMessages.random()} @${loser.user.displayName} и ${damageMessages.random()} $damageAfterInjury ${hpAliases.random()}. $emote ${crit?.message() ?: ""}${if (killed) " @" + loser.user.displayName + " " + deathMessages.random() + " " + deathEmotes.random() else ""}${if (ressurected) " @" + winner.user.displayName + " " + ressurectMessages.random() + " " + ressurectEmotes.random() else ""}")
+                sendMessageToChannel(channelName, "@${winner.user.displayName} (${winner.hp} хп) ${howMessage.random()} ${winMessages.random()} @${loser.user.displayName} (${loser.hp} хп) и ${damageMessages.random()} $damageAfterInjury ${hpAliases.random()}. $emote ${crit?.message() ?: ""}${if (killed) " @" + loser.user.displayName + " " + deathMessages.random() + " " + deathEmotes.random() else ""}${if (ressurected) " @" + winner.user.displayName + " " + ressurectMessages.random() + " " + ressurectEmotes.random() else ""}")
             }
         } catch (e: CommandException) {
             sendMessageToChannel(channelName, e.message)
