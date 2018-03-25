@@ -32,7 +32,7 @@ class Hp : Command() {
         val words = messageEvent.message.split("\\s".toRegex())
 
         if (words.size > 1) {
-            targetUsername = words[1].replaceFirst("^@".toRegex(), "").toLowerCase()
+            targetUsername = words[1].replaceFirst("^@".toRegex(), "").trim().toLowerCase()
             if (!viewerOnlineExcept(messageEvent, targetUsername, TogepiBot.botUsers)) {
                 sendMessageToChannel(channelName,"Пользователь $targetUsername в чате не найден, или он бот. Kappa")
                 return

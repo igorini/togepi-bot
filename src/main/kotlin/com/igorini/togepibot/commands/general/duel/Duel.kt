@@ -75,7 +75,7 @@ class Duel : Command() {
             }
             randomViewer = true
         } else {
-            opponentUsername = words[1].replaceFirst("^@".toRegex(), "").toLowerCase()
+            opponentUsername = words[1].replaceFirst("^@".toRegex(), "").trim().toLowerCase()
             if (opponentUsername == username) {
                 sendMessageToChannel(channelName, "Хорошая попытка, $userDisplayName TehePelo")
                 return
