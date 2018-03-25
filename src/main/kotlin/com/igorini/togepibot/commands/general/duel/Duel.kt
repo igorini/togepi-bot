@@ -29,6 +29,7 @@ class Duel : Command() {
         @JvmField val baseDamage = 0.1
         @JvmField val cooldownForRandom = 30
         @JvmField val cooldownForSpecific = 60
+        @JvmField val cooldownHpFactor = 0.1
         // TODO: For variety add with what
         @JvmField val winMessages = listOf("побеждает", "уничтожает", "бьёт", "побивает", "кусает", "пинает", "делает кусь", "отвлекает", "делает вжик-вжик", "атакует", "нападает на", "пронзает", "ранит", "даёт пощёчину", "даёт щелбан", "даёт подзатыльник", "даёт леща", "шлёпает", "унижает", "ставит на колени", "царапает")
         @JvmField val loseMessages = listOf("проигрывает")
@@ -101,7 +102,8 @@ class Duel : Command() {
                 var user = Duelists.findOrInsert(Users.findOrInsert(username, userDisplayName), channel)
 
                 if (user.hp <= 0) throw CommandException("Извините, @${user.user.displayName}, но Вы мертвы (${user.hp} хп). BibleThump Вас могут воскресить другие дуэлянты.")
-                if (user.user.name != togepiBotAdmin && user.available?.isAfterNow ?: false) {
+                //if (user.user.name != togepiBotAdmin && user.available?.isAfterNow ?: false) {
+                if (user.available?.isAfterNow ?: false) {
                     val stunDuration = Period(DateTime.now(), user.available)
                     throw CommandException("${user.user.displayName}, Вы сможете снова подуэлиться через ${if (stunDuration.minutes > 0) stunDuration.minutes.toString() + " мин " else ""}${stunDuration.seconds} сек")
                 }
@@ -129,10 +131,6 @@ class Duel : Command() {
                     with (duelist) {
                         duels++
                         val initiator = duelist == user
-                        if (initiator) {
-                            available = DateTime.now().plusSeconds(if (randomViewer) cooldownForRandom else cooldownForSpecific)
-                            if (ressurected) ressurects++
-                        }
                         if (won) {
                             wins++
                             hp += damageAfterInjury
@@ -144,6 +142,10 @@ class Duel : Command() {
                             hp -= damageAfterInjury
                             if (killed) deaths++
                             crit?.let { available = DateTime.now().plusSeconds(crit.stunSec()) }
+                        }
+                        if (initiator) {
+                            available = DateTime.now().plusSeconds(calculateCooldown(randomViewer, hp))
+                            if (ressurected) ressurects++
                         }
                         winrate = recalculateWinrate()
                     }
@@ -160,28 +162,14 @@ class Duel : Command() {
         }
     }
 
-    // TODO: Change to local function
-    fun updateDuelist(duelist: Duelist, won: Boolean, damage: Int, crit: Crit?, initiator: Boolean, killed: Boolean, randomViewer: Boolean) {
-        with (duelist) {
-            duels++
-            if (initiator) available = DateTime.now().plusSeconds(if (randomViewer) cooldownForRandom else cooldownForSpecific)
-            if (won) {
-                wins++
-                hp += damage
-                if (damage > maxDamage) maxDamage = damage
-                if (killed) kills++
-                if (hp > maxHp) maxHp = hp
-            } else {
-                losses++
-                hp -= damage
-                if (killed) deaths++
-                crit?.let { available = DateTime.now().plusSeconds(crit.stunSec()) }
-            }
-            winrate = recalculateWinrate()
-        }
+    fun calculateCooldown(randomViewer: Boolean, hp: Int): Int {
+        val baseCooldown = if (randomViewer) cooldownForRandom else cooldownForSpecific
+        val cooldown = baseCooldown + ((hp - initialHP) * cooldownHpFactor).roundToInt()
+        logger.info { "Calculated cooldown: $cooldown sec" }
+        return cooldown
     }
 
-    // TODO: Move to an extension function to a class Command in kotlin-twitch-bot
+                    // TODO: Move to an extension function to a class Command in kotlin-twitch-bot
     private fun findDisplayName(username: String): String {
         val user = twitchClient.userEndpoint.getUserByUserName(username)
         return if (user.isPresent) user.get().displayName else username
