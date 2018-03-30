@@ -21,6 +21,6 @@ class Tops : Command() {
         val channelName = messageEvent!!.channel.name!!
 
         // TODO: Refactor Top classes to beans and obtain commands from them
-        sendMessageToChannel(channelName, "!top/топ (текущее хп), !record/рекорд (по максимальному хп), !wr/винрейт, !dmg/урон, !kills/убийства, !deaths/смерти, !res/рес (воскрешения), !duels/дуэли (количество сыгранных дуэлей)")
+        sendMessageToChannel(channelName, "!top/топ (текущее хп), !maxhp/максхп, !wr/винрейт, !dmg/урон, !kills/убийства, !deaths/смерти, !res/рес (воскрешения), !duels/дуэли (количество сыгранных дуэлей)")
     }
 }
