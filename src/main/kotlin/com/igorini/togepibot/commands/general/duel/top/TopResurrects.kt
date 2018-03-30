@@ -7,7 +7,7 @@ import me.philippheuer.twitch4j.message.commands.CommandPermission
 class TopResurrects : Top() {
     init {
         command = "рес"
-        commandAliases = arrayOf("РЕС", "Рес", "res", "RES", "Res", "воскрешения", "resurrects")
+        commandAliases = arrayOf("РЕС", "Рес", "ресы", "res", "RES", "Res", "воскрешения", "resurrects")
         category = "general"
         description = "рес"
         requiredPermissions.add(CommandPermission.EVERYONE)
