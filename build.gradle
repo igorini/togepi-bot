@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        kotlinVersion = '1.2.30'
+        kotlinVersion = '1.2.31'
         kotlinTwitchBotVersion = '0.0.9'
         koinVersion = '0.9.0'
         exposedVersion = '0.10.1'
