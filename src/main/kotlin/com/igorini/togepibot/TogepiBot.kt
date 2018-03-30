@@ -5,6 +5,7 @@ import com.igorini.togepibot.commands.general.duel.Duel
 import com.igorini.togepibot.commands.general.duel.Hp
 import com.igorini.togepibot.commands.general.duel.top.*
 import com.igorini.togepibot.model.Channels
+import com.igorini.togepibot.model.DuelTops
 import com.igorini.togepibot.model.Duelists
 import com.igorini.togepibot.model.Users
 import com.igorini.togepibot.properties.DatabaseProperties
@@ -34,7 +35,7 @@ class TogepiBot : TwitchBot(), KoinComponent {
     fun initDatabase() {
         Database.connect(getProperty(DatabaseProperties.url), driver = getProperty(DatabaseProperties.driver), user = getProperty(DatabaseProperties.username), password = getProperty(DatabaseProperties.password))
         transaction {
-            create(Channels, Users, Duelists)
+            create(Channels, Users, Duelists, DuelTops)
         }
     }
 

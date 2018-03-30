@@ -35,6 +35,11 @@ abstract class Top : Command() {
         fun displayStat(index: Int, duelist: Duelist) = sb.append(" [${index + 1}. ${duelist.user.displayName}: ${stat(duelist)}]")
 
         val top3 = sortedDuelists.take(duelistsToDisplay)
+
+        fun updateDB() = top3.firstOrNull()?.let { DuelTops.upsert(channel, it, type()) }
+
+        updateDB()
+
         top3.forEachIndexed { index, duelist -> displayStat(index, duelist) }
 
         if (top3.none { it.channel == channel && it.user == user }) {
@@ -49,4 +54,5 @@ abstract class Top : Command() {
     abstract fun topMessage(): String
     abstract fun sort(duelists: List<Duelist>): List<Duelist>
     abstract fun stat(duelist: Duelist): Any
+    abstract fun type(): TopType
 }

@@ -17,4 +17,5 @@ class TopDuels : Top() {
     override fun topMessage() = "Топ дуэлянтов по количеству дуэлей"
     override fun sort(duelists: List<Duelist>) = duelists.sortedByDescending { it.duels }
     override fun stat(duelist: Duelist) = duelist.duels
+    override fun type() = TopType.DUELS
 }

@@ -5,7 +5,9 @@ import com.igorini.kotlintwitchbot.ext.viewerOnlineExcept
 import com.igorini.togepibot.TogepiBot.Companion.botUsers
 import com.igorini.togepibot.TogepiBot.Companion.negativeEmotes
 import com.igorini.togepibot.TogepiBot.Companion.positiveEmotes
+import com.igorini.togepibot.TogepiBot.Companion.togepiBotAdmin
 import com.igorini.togepibot.commands.general.duel.crit.Crit
+import com.igorini.togepibot.ext.quotes
 import com.igorini.togepibot.ext.random
 import com.igorini.togepibot.model.*
 import me.philippheuer.twitch4j.events.event.irc.ChannelMessageEvent
@@ -29,6 +31,7 @@ class Duel : Command() {
         @JvmField val cooldownForRandom = 30
         @JvmField val cooldownForSpecific = 60
         @JvmField val cooldownHpFactor = 0.1
+        @JvmField val titlelessUsernames = listOf(togepiBotAdmin)
         // TODO: For variety add with what
         @JvmField val winMessages = listOf("побеждает", "уничтожает", "бьёт", "побивает", "кусает", "пинает", "делает кусь", "отвлекает", "делает вжик-вжик", "атакует", "нападает на", "пронзает", "ранит", "даёт пощёчину", "даёт щелбан", "даёт подзатыльник", "даёт леща", "шлёпает", "унижает", "ставит на колени", "царапает")
         @JvmField val loseMessages = listOf("проигрывает")
@@ -153,7 +156,14 @@ class Duel : Command() {
                 updateDuelist(winner, true)
                 updateDuelist(loser, false)
 
-                sendMessageToChannel(channelName, "@${winner.user.displayName} (${winner.hp} хп) ${howMessage.random()} ${winMessages.random()} @${loser.user.displayName} (${loser.hp} хп) и ${damageMessages.random()} $damageAfterInjury ${hpAliases.random()}. $emote ${crit?.message() ?: ""}${if (killed) " @" + loser.user.displayName + " " + deathMessages.random() + " " + deathEmotes.random() else ""}${if (ressurected) " @" + winner.user.displayName + " " + ressurectMessages.random() + " " + ressurectEmotes.random() else ""}")
+                fun title(duelist: Duelist) = channel.duelTops.filter { it.duelist == duelist && !titlelessUsernames.contains(it.duelist.user.name)}.sortedBy { it.type }.firstOrNull()?.type?.title
+                fun displayTitle(duelist: Duelist) : String {
+                    val title = title(duelist)
+                    return if (title != null) "${title.quotes()} " else ""
+                }
+                fun displayDuelist(duelist: Duelist) = "${displayTitle(duelist)}@${duelist.user.displayName} (${duelist.hp} хп)"
+
+                sendMessageToChannel(channelName, "${displayDuelist(winner)} ${howMessage.random()} ${winMessages.random()} ${displayDuelist(loser)} и ${damageMessages.random()} $damageAfterInjury ${hpAliases.random()}. $emote ${crit?.message() ?: ""}${if (killed) " @" + loser.user.displayName + " " + deathMessages.random() + " " + deathEmotes.random() else ""}${if (ressurected) " @" + winner.user.displayName + " " + ressurectMessages.random() + " " + ressurectEmotes.random() else ""}")
             }
         } catch (e: CommandException) {
             sendMessageToChannel(channelName, e.message)
@@ -164,7 +174,7 @@ class Duel : Command() {
     fun calculateCooldown(randomViewer: Boolean, hp: Int): Int {
         val baseCooldown = if (randomViewer) cooldownForRandom else cooldownForSpecific
         val cooldown = baseCooldown + ((hp - initialHP) * cooldownHpFactor).roundToInt()
-        logger.info { "Calculated cooldown: $cooldown sec" }
+        logger.debug { "Calculated cooldown: $cooldown sec" }
         return cooldown
     }
 

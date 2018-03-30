@@ -24,14 +24,6 @@ object Duelists : IntIdTable() {
     val deaths = integer("deaths").default(0)
     val resurrects = integer("resurrects").default(0)
     val available = datetime("available").nullable()
-    val topDamage = bool("top_damage").default(false)
-    val topDeaths = bool("top_deaths").default(false)
-    val topDuels = bool("top_duels").default(false)
-    val topHp = bool("top_hp").default(false)
-    val topKills = bool("top_kills").default(false)
-    val topMaxHp = bool("top_maxhp").default(false)
-    val topResurrects = bool("top_resurrects").default(false)
-    val topWinrate = bool("top_winrate").default(false)
 
     fun findOrInsert(duelistUser: User, duelistChannel: Channel) = duelistChannel.duelists.find { it.user == duelistUser } ?: Duelist.new {
         channel = duelistChannel
@@ -56,14 +48,6 @@ class Duelist(id: EntityID<Int>) : IntEntity(id) {
     var deaths by Duelists.deaths
     var resurrects by Duelists.resurrects
     var available by Duelists.available
-    var topDamage by Duelists.topDamage
-    var topDeaths by Duelists.topDeaths
-    var topDuels by Duelists.topDuels
-    var topHp by Duelists.topHp
-    var topKills by Duelists.topKills
-    var topMaxHp by Duelists.topMaxHp
-    var topResurrects by Duelists.topResurrects
-    var topWinrate by Duelists.topWinrate
 }
 
 fun Duelist.recalculateWinrate() = BigDecimal(wins.toString()).divide(BigDecimal(duels.toString()), 6, RoundingMode.HALF_UP).multiply(BigDecimal("100"))

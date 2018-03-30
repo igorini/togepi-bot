@@ -17,4 +17,5 @@ class TopResurrects : Top() {
     override fun topMessage() = "Топ дуэлянтов по количеству воскрешений"
     override fun sort(duelists: List<Duelist>) = duelists.sortedByDescending { it.resurrects }
     override fun stat(duelist: Duelist) = duelist.resurrects
+    override fun type() = TopType.RESURRECTS
 }

@@ -17,4 +17,5 @@ class TopDamage : Top() {
     override fun topMessage() = "Топ дуэлянтов по максимальному урону"
     override fun sort(duelists: List<Duelist>) = duelists.sortedByDescending { it.maxDamage }
     override fun stat(duelist: Duelist) = duelist.maxDamage
+    override fun type() = TopType.DAMAGE
 }

@@ -17,4 +17,5 @@ class TopHp : Top() {
     override fun topMessage() = "Топ дуэлянтов по текущему хп"
     override fun sort(duelists: List<Duelist>) = duelists.sortedByDescending { it.hp }
     override fun stat(duelist: Duelist) = duelist.hp
+    override fun type() = TopType.HP
 }

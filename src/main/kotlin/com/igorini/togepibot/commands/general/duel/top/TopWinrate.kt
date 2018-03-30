@@ -20,6 +20,7 @@ class TopWinrate : Top() {
     }
 
     override fun topMessage() = "Топ дуэлянтов по винрейту (минимум ${minimumAmountOfDuels} дуэлей)"
-    override fun sort(duelists: List<Duelist>) = duelists.sortedByDescending { it.winrate }
+    override fun sort(duelists: List<Duelist>) = duelists.filter { it.duels >= minimumAmountOfDuels }.sortedByDescending { it.winrate }
     override fun stat(duelist: Duelist) = "${duelist.winrate.setScale(2, BigDecimal.ROUND_DOWN)}%"
+    override fun type() = TopType.WINRATE
 }

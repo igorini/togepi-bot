@@ -17,4 +17,5 @@ class TopMaxHp : Top() {
     override fun topMessage() = "Топ дуэлянтов по максимальному хп"
     override fun sort(duelists: List<Duelist>) = duelists.sortedByDescending { it.maxHp }
     override fun stat(duelist: Duelist) = duelist.maxHp
+    override fun type() = TopType.MAX_HP
 }
