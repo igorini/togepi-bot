@@ -1,7 +1,10 @@
 package com.igorini.togepibot.model
 
 import com.igorini.togepibot.commands.general.duel.Duel
-import org.jetbrains.exposed.dao.*
+import org.jetbrains.exposed.dao.EntityID
+import org.jetbrains.exposed.dao.IntEntity
+import org.jetbrains.exposed.dao.IntEntityClass
+import org.jetbrains.exposed.dao.IntIdTable
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -19,7 +22,7 @@ object Duelists : IntIdTable() {
     val maxHp = integer("max_hp").default(Duel.initialHP)
     val kills = integer("kills").default(0)
     val deaths = integer("deaths").default(0)
-    val ressurects = integer("ressurects").default(0)
+    val resurrects = integer("resurrects").default(0)
     val available = datetime("available").nullable()
     val topDamage = bool("top_damage").default(false)
     val topDeaths = bool("top_deaths").default(false)
@@ -27,7 +30,7 @@ object Duelists : IntIdTable() {
     val topHp = bool("top_hp").default(false)
     val topKills = bool("top_kills").default(false)
     val topMaxHp = bool("top_maxhp").default(false)
-    val topRessurects = bool("top_ressurects").default(false)
+    val topResurrects = bool("top_resurrects").default(false)
     val topWinrate = bool("top_winrate").default(false)
 
     fun findOrInsert(duelistUser: User, duelistChannel: Channel) = duelistChannel.duelists.find { it.user == duelistUser } ?: Duelist.new {
@@ -51,7 +54,7 @@ class Duelist(id: EntityID<Int>) : IntEntity(id) {
     var maxHp by Duelists.maxHp
     var kills by Duelists.kills
     var deaths by Duelists.deaths
-    var ressurects by Duelists.ressurects
+    var resurrects by Duelists.resurrects
     var available by Duelists.available
     var topDamage by Duelists.topDamage
     var topDeaths by Duelists.topDeaths
@@ -59,7 +62,7 @@ class Duelist(id: EntityID<Int>) : IntEntity(id) {
     var topHp by Duelists.topHp
     var topKills by Duelists.topKills
     var topMaxHp by Duelists.topMaxHp
-    var topRessurects by Duelists.topRessurects
+    var topResurrects by Duelists.topResurrects
     var topWinrate by Duelists.topWinrate
 }
 

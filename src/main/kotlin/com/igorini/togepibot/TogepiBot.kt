@@ -8,7 +8,7 @@ import com.igorini.togepibot.model.Channels
 import com.igorini.togepibot.model.Duelists
 import com.igorini.togepibot.model.Users
 import com.igorini.togepibot.properties.DatabaseProperties
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils.create
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.standalone.KoinComponent
@@ -27,7 +27,7 @@ class TogepiBot : TwitchBot(), KoinComponent {
         registerCommand(TopDuels())
         registerCommand(TopKills())
         registerCommand(TopMaxHp())
-        registerCommand(TopRessurects())
+        registerCommand(TopResurrects())
         registerCommand(Hp())
     }
 

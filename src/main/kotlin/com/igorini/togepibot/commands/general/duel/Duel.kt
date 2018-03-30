@@ -5,8 +5,7 @@ import com.igorini.kotlintwitchbot.ext.viewerOnlineExcept
 import com.igorini.togepibot.TogepiBot.Companion.botUsers
 import com.igorini.togepibot.TogepiBot.Companion.negativeEmotes
 import com.igorini.togepibot.TogepiBot.Companion.positiveEmotes
-import com.igorini.togepibot.TogepiBot.Companion.togepiBotAdmin
-import com.igorini.togepibot.commands.general.duel.crit.*
+import com.igorini.togepibot.commands.general.duel.crit.Crit
 import com.igorini.togepibot.ext.random
 import com.igorini.togepibot.model.*
 import me.philippheuer.twitch4j.events.event.irc.ChannelMessageEvent
@@ -145,7 +144,7 @@ class Duel : Command() {
                         }
                         if (initiator) {
                             available = DateTime.now().plusSeconds(calculateCooldown(randomViewer, hp))
-                            if (ressurected) ressurects++
+                            if (ressurected) resurrects++
                         }
                         winrate = recalculateWinrate()
                     }

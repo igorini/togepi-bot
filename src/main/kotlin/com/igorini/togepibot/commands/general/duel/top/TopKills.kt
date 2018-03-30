@@ -1,17 +1,10 @@
 package com.igorini.togepibot.commands.general.duel.top
 
-import com.igorini.togepibot.model.*
-import me.philippheuer.twitch4j.events.event.irc.ChannelMessageEvent
-import me.philippheuer.twitch4j.message.commands.Command
+import com.igorini.togepibot.model.Duelist
 import me.philippheuer.twitch4j.message.commands.CommandPermission
-import org.jetbrains.exposed.sql.transactions.transaction
 
-/** Represents */
-class TopKills : Command() {
-    companion object {
-        @JvmField val duelistsToDisplay = 3
-    }
-
+/** Represents a command for showing duelists with the highest amount of kills */
+class TopKills : Top() {
     init {
         command = "убийства"
         commandAliases = arrayOf("Убийства", "УБИЙСТВА", "kills", "KILLS", "Kills", "kill", "убийство")
@@ -21,33 +14,7 @@ class TopKills : Command() {
         usageExample = "!убийства"
     }
 
-    override fun executeCommand(messageEvent: ChannelMessageEvent?) {
-        super.executeCommand(messageEvent)
-
-        val channelName = messageEvent!!.channel.name!!
-        val username = messageEvent.user.name.toLowerCase()
-
-        val sb = StringBuilder("Топ дуэлянтов по колличеству убийств")
-
-        transaction {
-            val channel = Channels.findOrInsert(channelName)
-            val user = Users.findOrInsert(username, messageEvent.user.displayName)
-            val sortedDuelists = Duelist.all().filter { it.channel == channel }.sortedByDescending { it.kills }
-            sb.append(maxHpTop(sortedDuelists, channel, user))
-        }
-
-        sendMessageToChannel(channelName, sb.toString())
-    }
-
-    private fun maxHpTop(sortedDuelists: List<Duelist>, channel: Channel, user: User): String {
-        val sb = StringBuilder(50)
-        val top3 = sortedDuelists.take(duelistsToDisplay)
-        top3.forEachIndexed { index, duelist -> sb.append(" ${index + 1}. ${duelist.user.displayName}: ${duelist.kills}") }
-
-        if (top3.none { it.channel == channel && it.user == user }) {
-            sortedDuelists.withIndex().filter { it.value.channel == channel && it.value.user == user }.forEach { (index, duelist) -> sb.append(" ${index + 1}. ${duelist.user.displayName}: ${duelist.kills}") }
-        }
-
-        return sb.toString()
-    }
+    override fun topMessage() = "Топ дуэлянтов по колличеству убийств"
+    override fun sort(duelists: List<Duelist>) = duelists.sortedByDescending { it.kills }
+    override fun stat(duelist: Duelist) = duelist.kills
 }
