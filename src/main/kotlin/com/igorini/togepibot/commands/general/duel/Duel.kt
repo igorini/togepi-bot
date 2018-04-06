@@ -13,8 +13,8 @@ import com.igorini.togepibot.model.*
 import me.philippheuer.twitch4j.events.event.irc.ChannelMessageEvent
 import me.philippheuer.twitch4j.message.commands.Command
 import me.philippheuer.twitch4j.message.commands.CommandPermission
-import mu.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.transaction
+import mu.KotlinLogging
 import org.joda.time.DateTime
 import org.joda.time.Period
 import kotlin.math.roundToInt
@@ -33,10 +33,14 @@ class Duel : Command() {
         @JvmField val cooldownHpFactor = 0.1
         @JvmField val titlelessUsernames = listOf(togepiBotAdmin)
         // TODO: For variety add with what
-        @JvmField val winMessages = listOf("побеждает", "уничтожает", "бьёт", "побивает", "кусает", "пинает", "делает кусь", "отвлекает", "делает вжик-вжик", "атакует", "нападает на", "пронзает", "ранит", "даёт пощёчину", "даёт щелбан", "даёт подзатыльник", "даёт леща", "шлёпает", "унижает", "ставит на колени", "царапает")
-        @JvmField val loseMessages = listOf("проигрывает")
-        @JvmField val howMessage = listOf("безжалостно", "яростно", "без грамма совести", "с радостью", "со злорадством", "элегантно", "стильно", "резко", "сильно", "мощно", "быстро", "увесисто", "жестоко", "коварно", "мило", "с любовью", "отчаянно", "шутя", "как боженька", "нежно", "ласково", "аккуратно", "точно", "с гордостью", "с честью", "отважно", "нелепо", "неуклюже", "без сожаления")
-        @JvmField val damageMessages = listOf("пожирает", "крадёт", "лайфстилит", "отнимает", "лечит", "растёт на", "восстанавливает", "похищает", "забирает", "высасывает", "поглощает")
+        @JvmField val simpleAttackMessages = listOf("побеждает", "уничтожает", "бьёт", "побивает", "кусает", "пинает", "делает кусь", "отвлекает", "делает вжик-вжик", "атакует", "нападает на", "пронзает", "ранит", "даёт пощёчину", "даёт щелбан", "даёт подзатыльник", "даёт леща", "шлёпает", "унижает", "ставит на колени", "царапает")
+        @JvmField val doesMessages = listOf("атакует", "пронзает", "ранит", "царапает", "штурмует", "режет", "рассекает", "рубит", "сечёт", "протыкает", "выкалывает", "вырубает", "ударяет", "травмирует", "жалит", "повреждает", "дубасит", "жахает")
+        @JvmField val shootMessages = listOf("стреляет", "пуляет", "выстреливает", "делает пиу-пиу", "делает точный выстрел")
+        @JvmField val weapons = listOf("автомата", "пистолета", "револьвера", "лука", "арбалета", "ружья", "винтовки", "рогатки", "пушки", "АК-47", "узи", "эмки", "пулемёта", "гранатомёта", "дробовика", "игрушечного пистолета", "водяного пистолета")
+        @JvmField val withMessages = listOf("мечом", "джедайским мечом", "саблей", "ножом", "алебардой", "линейкой", "бумерангом", "сковородой", "утюгом", "кастрюлей", "ложкой", "вилкой", "гарпуном", "дротиком", "кинжалом", "катаной", "шпагой", "рапирой", "копьём", "мачете", "дубинкой", "карандашом", "бензопилой", "битой", "отвёрткой", "волшебной палочкой", "кулаком", "пальцем", "пулей", "стрелой", "болтом", "топором", "ногтём", "локтём", "ногой", "коленом", "зубами")
+        @JvmField val targetMessages = listOf("глаз", "нос", "ухо", "щёку", "рот", "голову", "колено", "лоб", "бровь", "зуб", "подбородок", "шею", "плечо", "спину", "локоть", "руку", "ногу", "палец", "живот", "пупок", "сердце", "печень", "почку", "бедро")
+        @JvmField val howMessage = listOf("безжалостно", "свирепо", "люто", "кровожадно", "зверски", "сердито", "бешенно", "исступленно", "разъяренно", "дико", "неистово", "беззаботно", "не глядя", "вслепую", "наобум", "наугад", "вполсилы", "яростно", "без грамма совести", "с радостью", "со злорадством", "элегантно", "изящно", "роскошно", "изысканно", "метко", "стильно", "резко", "сильно", "нагло", "стремительно", "мощно", "быстро", "увесисто", "жестоко", "коварно", "предательски", "мило", "вежливо", "любезно", "деликатно", "приятно", "с любовью", "отчаянно", "шутя", "как боженька", "нежно", "ласково", "аккуратно", "точно", "с гордостью", "с честью", "отважно", "нелепо", "неуклюже", "без сожаления")
+        @JvmField val damageMessages = listOf("пожирает", "крадёт", "лайфстилит", "отнимает", "лечит", "растёт на", "восстанавливает", "похищает", "забирает", "высасывает", "поглощает", "ворует", "прикарманивает", "повышается на", "расширяется на", "поправляется на")
         @JvmField val hpAliases = listOf("хп")
         @JvmField val deathEmotes = listOf("riPepperonis")
         @JvmField val deathMessages = listOf("умирает")
@@ -163,7 +167,7 @@ class Duel : Command() {
                 }
                 fun displayDuelist(duelist: Duelist) = "${displayTitle(duelist)}@${duelist.user.displayName} (${duelist.hp} хп)"
 
-                sendMessageToChannel(channelName, "${displayDuelist(winner)} ${howMessage.random()} ${winMessages.random()} ${displayDuelist(loser)} и ${damageMessages.random()} $damageAfterInjury ${hpAliases.random()}. $emote ${crit?.message() ?: ""}${if (killed) " @" + loser.user.displayName + " " + deathMessages.random() + " " + deathEmotes.random() else ""}${if (ressurected) " @" + winner.user.displayName + " " + ressurectMessages.random() + " " + ressurectEmotes.random() else ""}")
+                sendMessageToChannel(channelName, "/me ${displayDuelist(winner)} ${attackMessage()} ${displayDuelist(loser)} и ${damageMessages.random()} $damageAfterInjury ${hpAliases.random()}. $emote ${crit?.message() ?: ""}${if (killed) " @" + loser.user.displayName + " " + deathMessages.random() + " " + deathEmotes.random() else ""}${if (ressurected) " @" + winner.user.displayName + " " + ressurectMessages.random() + " " + ressurectEmotes.random() else ""}")
             }
         } catch (e: CommandException) {
             sendMessageToChannel(channelName, e.message)
@@ -171,10 +175,16 @@ class Duel : Command() {
         }
     }
 
+    private fun attackMessage() = when((1..3).toList().random()) {
+        1 -> "${howMessage.random()} ${simpleAttackMessages.random()}"
+        2 -> "${howMessage.random()} ${doesMessages.random()} ${withMessages.random()} ${targetMessages.random()}"
+        3 -> "${howMessage.random()} ${shootMessages.random()} из ${weapons.random()} в ${targetMessages.random()}"
+        else -> "${howMessage.random()} ${simpleAttackMessages.random()}"
+    }
+
     fun calculateCooldown(randomViewer: Boolean, hp: Int): Int {
         val baseCooldown = if (randomViewer) cooldownForRandom else cooldownForSpecific
         val cooldown = baseCooldown + ((hp - initialHP) * cooldownHpFactor).roundToInt()
-        logger.debug { "Calculated cooldown: $cooldown sec" }
         return cooldown
     }
 
