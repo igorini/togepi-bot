@@ -188,7 +188,7 @@ class Duel : Command() {
         return cooldown
     }
 
-                    // TODO: Move to an extension function to a class Command in kotlin-twitch-bot
+    // TODO: Move to an extension function to a class Command in kotlin-twitch-bot
     private fun findDisplayName(username: String): String {
         val user = twitchClient.userEndpoint.getUserByUserName(username)
         return if (user.isPresent) user.get().displayName else username
