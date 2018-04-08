@@ -38,6 +38,7 @@ abstract class Top : Command() {
 
         fun updateDB() = top3.firstOrNull()?.let { DuelTops.upsert(channel, it, type()) }
 
+        onUpdateDB(channel, top3)
         updateDB()
 
         top3.forEachIndexed { index, duelist -> displayStat(index, duelist) }
@@ -50,6 +51,8 @@ abstract class Top : Command() {
 
         return sb.toString()
     }
+
+    open fun onUpdateDB(channel: Channel, top3: List<Duelist>) {}
 
     abstract fun topMessage(): String
     abstract fun sort(duelists: List<Duelist>): List<Duelist>

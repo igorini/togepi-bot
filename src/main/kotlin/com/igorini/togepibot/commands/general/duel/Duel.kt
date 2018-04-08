@@ -61,50 +61,38 @@ class Duel : Command() {
         super.executeCommand(messageEvent)
 
         val channelName = messageEvent!!.channel.name!!
-        val words = messageEvent.message.split("\\s".toRegex())
-
-        val username = messageEvent.user.name.toLowerCase()
-        val userDisplayName = messageEvent.user.displayName!!
-        val opponentUsername: String?
-        var randomViewer = false
-        if (words.size == 1) {
-            try {
-                // TODO: In kotlin-twitch-bot cache viewer list
-                opponentUsername = randomViewerExcept(messageEvent, botUsers.plus(username))
-            } catch (e: Exception) {
-                logger.error(e) {}
-                return
-            }
-            if (opponentUsername == null) {
-                // TODO: Modify kotlin-twitch-bot and throw an exception instead
-                sendMessageToChannel(channelName, "Достойных соперников не обнаружено. Kappa")
-                return
-            }
-            randomViewer = true
-        } else {
-            opponentUsername = words[1].replaceFirst("^@".toRegex(), "").trim().toLowerCase()
-            if (opponentUsername == username) {
-                sendMessageToChannel(channelName, "Хорошая попытка, $userDisplayName TehePelo")
-                return
-            }
-            if (!viewerOnlineExcept(messageEvent, opponentUsername, botUsers)) {
-                sendMessageToChannel(channelName,"Пользователь $opponentUsername в чате не найден, или он бот. Kappa")
-                return
-            }
-        }
-
-        val opponentDisplayName : String?
-        try {
-            opponentDisplayName = findDisplayName(opponentUsername)
-        } catch (e: Exception) {
-            logger.error(e) {}
-            return
-        }
-
-        // TODO: Split into multiple transactions?
         try {
             transaction {
+                val words = messageEvent.message.split("\\s".toRegex())
+
+                val username = messageEvent.user.name.toLowerCase()
+                val userDisplayName = messageEvent.user.displayName!!
+                val opponentUsername: String?
+                var randomViewer = false
                 val channel = Channels.findOrInsert(channelName)
+
+                if (words.size == 1) {
+                    opponentUsername = randomViewerExcept(messageEvent, botUsers.plus(username))
+                    if (opponentUsername == null) {
+                        // TODO: Modify kotlin-twitch-bot and throw an exception instead
+                        throw CommandException("Достойных соперников не обнаружено. Kappa")
+                    }
+                    randomViewer = true
+                } else {
+                    opponentUsername = words[1].replaceFirst("^@".toRegex(), "").trim().toLowerCase()
+                    if (opponentUsername == username) {
+                        throw CommandException("Хорошая попытка, $userDisplayName TehePelo")
+                    }
+
+                    val leader = channel.duelLeaders.any { it.duelist.user.name == opponentUsername }
+
+                    if (!leader && !viewerOnlineExcept(messageEvent, opponentUsername, botUsers)) {
+                        throw CommandException("Пользователь $opponentUsername в чате не найден, или он бот. Kappa")
+                    }
+                }
+
+                val opponentDisplayName = findDisplayName(opponentUsername)
+
                 var user = Duelists.findOrInsert(Users.findOrInsert(username, userDisplayName), channel)
 
                 if (user.hp <= 0) throw CommandException("Извините, @${user.user.displayName}, но Вы мертвы (${user.hp} хп). BibleThump Вас могут воскресить другие дуэлянты.")
@@ -171,6 +159,9 @@ class Duel : Command() {
             }
         } catch (e: CommandException) {
             sendMessageToChannel(channelName, e.message)
+            return
+        } catch (e: Exception) {
+            logger.error(e) {}
             return
         }
     }
