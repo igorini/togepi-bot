@@ -7,11 +7,11 @@ import kotlin.math.roundToInt
 /** Represents */
 interface Crit {
     companion object {
-        fun proc() = when (percents.random()) {
+        fun proc(bonusChance: Int) = when (percents.random()) {
             in 1..UltraCrit.chance() -> UltraCrit
             in (UltraCrit.chance() + 1)..MegaCrit.chance() -> MegaCrit
             in (MegaCrit.chance() + 1)..TripleCrit.chance() -> TripleCrit
-            in (TripleCrit.chance() + 1)..DoubleCrit.chance() -> DoubleCrit
+            in (TripleCrit.chance() + 1)..(DoubleCrit.chance() + bonusChance) -> DoubleCrit
             else -> null
         }
     }

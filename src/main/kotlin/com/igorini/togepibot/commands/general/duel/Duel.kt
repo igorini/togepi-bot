@@ -116,7 +116,7 @@ class Duel : Command() {
                 val winner = duelists.random()
                 val loser = (duelists - winner).first()
                 val base = (duelists.maxBy { it.hp }!!.hp * baseDamage)
-                val crit = if (winner == user) Crit.proc() else null
+                val crit = if (winner == user) Crit.proc(if (opponentIsBlackSpot) BlackSpotCommand.blackSpotCritBonus else 0) else null
                 val damage = crit?.damage(base) ?: base.roundToInt()
 
                 var killed = false

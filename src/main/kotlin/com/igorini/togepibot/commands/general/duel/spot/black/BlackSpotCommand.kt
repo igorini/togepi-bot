@@ -2,8 +2,10 @@ package com.igorini.togepibot.commands.general.duel.spot.black
 
 import com.igorini.kotlintwitchbot.ext.randomViewerExcept
 import com.igorini.togepibot.TogepiBot.Companion.botUsers
+import com.igorini.togepibot.TogepiBot.Companion.percents
 import com.igorini.togepibot.commands.general.duel.CommandException
-import com.igorini.togepibot.commands.general.duel.spot.black.bounty.NormalBounty
+import com.igorini.togepibot.commands.general.duel.crit.DoubleCrit
+import com.igorini.togepibot.commands.general.duel.spot.black.bounty.*
 import com.igorini.togepibot.ext.random
 import com.igorini.togepibot.model.*
 import me.philippheuer.twitch4j.events.event.irc.ChannelMessageEvent
@@ -17,10 +19,19 @@ class BlackSpotCommand : Command() {
 
     companion object {
         const val blackSpotSymbol = '●'
+        @JvmField val blackSpotCritBonus = 30
 
         fun assignBlackSpot(channel: Channel) {
             val duelist = channel.duelists.filter { it.hp > 0 }.random()
-            BlackSpots.upsert(channel, duelist, NormalBounty.reward())
+            BlackSpots.upsert(channel, duelist, bounty().reward())
+        }
+
+        private fun bounty()  = when (percents.random()) {
+            in 1..UltraBounty.chance() -> UltraBounty
+            in (UltraBounty.chance() + 1)..MegaBounty.chance() -> MegaBounty
+            in (MegaBounty.chance() + 1)..TripleBounty.chance() -> TripleBounty
+            in (TripleBounty.chance() + 1)..DoubleBounty.chance() -> DoubleBounty
+            else -> NormalBounty
         }
     }
 
@@ -47,7 +58,7 @@ class BlackSpotCommand : Command() {
                 if (channel.blackSpots.empty()) assignBlackSpot(channel)
 
                 val blackSpot = channel.blackSpots.first()
-                sendMessageToChannel(channelName, "Чёрная метка ${blackSpotSymbol} на @${blackSpot.duelist.user.displayName}. За его/её голову назначена награда в ${blackSpot.bounty} хп.")
+                sendMessageToChannel(channelName, "Чёрная метка ${blackSpotSymbol} на @${blackSpot.duelist.user.displayName}. За его/её голову назначена награда в ${blackSpot.bounty} хп. Шанс крита по метке увеличен с ${DoubleCrit.chance()}% до ${DoubleCrit.chance() + blackSpotCritBonus}%")
             }
         } catch (e: CommandException) {
             sendMessageToChannel(channelName, e.message)
