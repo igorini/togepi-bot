@@ -1,7 +1,8 @@
 package com.igorini.togepibot.commands.general.duel.spot.white
 
+import com.igorini.togepibot.TogepiBot.Companion.percents
 import com.igorini.togepibot.commands.general.duel.CommandException
-import com.igorini.togepibot.commands.general.duel.spot.white.buff.NormalBuff
+import com.igorini.togepibot.commands.general.duel.spot.white.buff.*
 import com.igorini.togepibot.ext.random
 import com.igorini.togepibot.model.*
 import me.philippheuer.twitch4j.events.event.irc.ChannelMessageEvent
@@ -15,6 +16,25 @@ class WhiteSpotCommand : Command() {
 
     companion object {
         const val whiteSpotSymbol = '○'
+        @JvmField val buffDurationMins = 15
+
+        fun assignWhiteSpot(channel: Channel) {
+            val duelist: Duelist
+            try {
+                duelist = channel.duelists.filter { it.hp <= 0 }.random()
+            } catch (e: NoSuchElementException) {
+                throw CommandException("Не удалось найти мертвых дуэлянтов.")
+            }
+            WhiteSpots.upsert(channel, duelist, buff().amount())
+        }
+
+        private fun buff()  = when (percents.random()) {
+            in 1..UltraBuff.chance() -> UltraBuff
+            in (UltraBuff.chance() + 1)..MegaBuff.chance() -> MegaBuff
+            in (MegaBuff.chance() + 1)..TripleBuff.chance() -> TripleBuff
+            in (TripleBuff.chance() + 1)..DoubleBuff.chance() -> DoubleBuff
+            else -> NormalBuff
+        }
     }
 
     val logger = KotlinLogging.logger {}
@@ -37,20 +57,10 @@ class WhiteSpotCommand : Command() {
             transaction {
                 val channel = Channels.findOrInsert(channelName)
 
-                fun assignWhiteSpot() {
-                    val duelist: Duelist
-                    try {
-                        duelist = channel.duelists.filter { it.hp <= 0 }.random()
-                    } catch (e: NoSuchElementException) {
-                        throw CommandException("Не удалось найти мертвых дуэлянтов.")
-                    }
-                    WhiteSpots.upsert(channel, duelist, NormalBuff.amount())
-                }
-
-                if (channel.whiteSpots.empty()) assignWhiteSpot()
+                if (channel.whiteSpots.empty()) assignWhiteSpot(channel)
 
                 val whiteSpot = channel.whiteSpots.first()
-                sendMessageToChannel(channelName, "Белая метка $whiteSpotSymbol на @${whiteSpot.duelist.user.displayName}. Воскресив его/её вы получите баф +${whiteSpot.critBuff}% к x2 криту на 15 мин.")
+                sendMessageToChannel(channelName, "Белая метка $whiteSpotSymbol на @${whiteSpot.duelist.user.displayName}. Воскресив его/её вы получите баф +${whiteSpot.critBuff}% к шансу крита на $buffDurationMins мин.")
             }
         } catch (e: CommandException) {
             sendMessageToChannel(channelName, e.message)

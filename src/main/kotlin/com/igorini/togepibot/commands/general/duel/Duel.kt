@@ -8,6 +8,7 @@ import com.igorini.togepibot.TogepiBot.Companion.positiveEmotes
 import com.igorini.togepibot.TogepiBot.Companion.togepiBotAdmin
 import com.igorini.togepibot.commands.general.duel.crit.Crit
 import com.igorini.togepibot.commands.general.duel.spot.black.BlackSpotCommand
+import com.igorini.togepibot.commands.general.duel.spot.white.WhiteSpotCommand
 import com.igorini.togepibot.ext.quotes
 import com.igorini.togepibot.ext.random
 import com.igorini.togepibot.model.*
@@ -116,7 +117,14 @@ class Duel : Command() {
                 val winner = duelists.random()
                 val loser = (duelists - winner).first()
                 val base = (duelists.maxBy { it.hp }!!.hp * baseDamage)
-                val crit = if (winner == user) Crit.proc(if (opponentIsBlackSpot) BlackSpotCommand.blackSpotCritBonus else 0) else null
+
+                fun bonusCritChance() : Int {
+                    val blackSpotCritBonus = if (opponentIsBlackSpot) BlackSpotCommand.blackSpotCritBonus else 0
+                    val whiteSpotCritBonus  = if (winner.critBuffUntil?.isBeforeNow() ?: false) winner.critBuff else 0
+                    return blackSpotCritBonus + whiteSpotCritBonus
+                }
+
+                val crit = if (winner == user) Crit.proc(bonusCritChance()) else null
                 val damage = crit?.damage(base) ?: base.roundToInt()
 
                 var killed = false
@@ -171,6 +179,16 @@ class Duel : Command() {
                 updateDuelist(winner, true)
                 updateDuelist(loser, false)
 
+                fun whiteSpot(duelist: Duelist) = channel.whiteSpots.firstOrNull()?.duelist == duelist
+
+                var whiteSpotRessurected = false
+                if (ressurected && whiteSpot(winner)) {
+                    whiteSpotRessurected = true
+                    loser.critBuff = channel.whiteSpots.first().critBuff
+                    loser.critBuffUntil = DateTime.now().plusMinutes(WhiteSpotCommand.buffDurationMins)
+                    WhiteSpotCommand.assignWhiteSpot(channel)
+                }
+
                 fun title(duelist: Duelist) = channel.duelTops.filter { it.duelist == duelist && !titlelessUsernames.contains(it.duelist.user.name)}.sortedBy { it.type }.firstOrNull()?.type?.title
                 fun displayTitle(duelist: Duelist) : String {
                     val title = title(duelist)
@@ -178,8 +196,9 @@ class Duel : Command() {
                 }
                 fun displayDuelist(duelist: Duelist) = "${displayTitle(duelist)}@${duelist.user.displayName} (${duelist.hp} хп)"
 
-                sendMessageToChannel(channelName, "/me ${displayDuelist(winner)} ${attackMessage()} ${displayDuelist(loser)} и ${damageMessages.random()} $damageAfterInjury ${hpAliases.random()}. $emote ${crit?.message() ?: ""}${if (killed) " @" + loser.user.displayName + " " + deathMessages.random() + " " + deathEmotes.random() else ""}${if (ressurected) " @" + winner.user.displayName + " " + ressurectMessages.random() + " " + ressurectEmotes.random() else ""}")
-                if (blackSpotKilled) sendMessageToChannel(channelName, "/me За убийство чёрной метки, @${winner.user.displayName} получает в награду ${blackSpotReward} хп.")
+                val blackSpotMessage = if (blackSpotKilled) " За убийство чёрной метки, @${winner.user.displayName} получает в награду ${blackSpotReward} хп." else ""
+                val whiteSpotMessage =  if (whiteSpotRessurected) " За воскрешение белой метки, @${loser.user.displayName} получает в награду баф +${loser.critBuff}% к шансу крита на ${WhiteSpotCommand.buffDurationMins} мин." else ""
+                sendMessageToChannel(channelName, "/me ${displayDuelist(winner)} ${attackMessage()} ${displayDuelist(loser)} и ${damageMessages.random()} $damageAfterInjury ${hpAliases.random()}. $emote ${crit?.message() ?: ""}${if (killed) " @" + loser.user.displayName + " " + deathMessages.random() + " " + deathEmotes.random() else ""}${if (ressurected) " @" + winner.user.displayName + " " + ressurectMessages.random() + " " + ressurectEmotes.random() else ""}$blackSpotMessage$whiteSpotMessage")
             }
         } catch (e: CommandException) {
             sendMessageToChannel(channelName, e.message)
