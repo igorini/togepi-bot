@@ -3,6 +3,8 @@ package com.igorini.togepibot
 import com.igorini.kotlintwitchbot.TwitchBot
 import com.igorini.togepibot.commands.general.duel.Duel
 import com.igorini.togepibot.commands.general.duel.Hp
+import com.igorini.togepibot.commands.general.duel.spot.black.BlackSpotCommand
+import com.igorini.togepibot.commands.general.duel.spot.white.WhiteSpotCommand
 import com.igorini.togepibot.commands.general.duel.top.*
 import com.igorini.togepibot.model.*
 import com.igorini.togepibot.properties.DatabaseProperties
@@ -27,12 +29,14 @@ class TogepiBot : TwitchBot(), KoinComponent {
         registerCommand(TopMaxHp())
         registerCommand(TopResurrects())
         registerCommand(Hp())
+        registerCommand(BlackSpotCommand())
+        registerCommand(WhiteSpotCommand())
     }
 
     fun initDatabase() {
         Database.connect(getProperty(DatabaseProperties.url), driver = getProperty(DatabaseProperties.driver), user = getProperty(DatabaseProperties.username), password = getProperty(DatabaseProperties.password))
         transaction {
-            create(Channels, Users, Duelists, DuelTops, DuelLeaders)
+            create(Channels, Users, Duelists, DuelTops, DuelLeaders, BlackSpots, WhiteSpots)
         }
     }
 
@@ -40,7 +44,7 @@ class TogepiBot : TwitchBot(), KoinComponent {
         const val togepiBotAdmin = "igor_dmitrievich"
         @JvmField val botUsers = listOf("moobot", "nightbot", "mirrobot", "togepibot", "hereforde", "gamecastlebot")
         @JvmField val positiveEmotes = listOf("VoHiYo", "BloodTrail", "PogChamp", "CoolCat", "SeemsGood", "TehePelo")
-        @JvmField val negativeEmotes = listOf("BibleThump", "FailFish", "r6rekt", "DarkMode", "NotLikeThis", "BabyRage", "SwiftRage")
+        @JvmField val negativeEmotes = listOf("BibleThump", "FailFish", "DarkMode", "NotLikeThis", "BabyRage", "SwiftRage")
         @JvmField val percents = (1..100).toList()
     }
 }

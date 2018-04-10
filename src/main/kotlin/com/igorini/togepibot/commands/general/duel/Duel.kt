@@ -7,6 +7,7 @@ import com.igorini.togepibot.TogepiBot.Companion.negativeEmotes
 import com.igorini.togepibot.TogepiBot.Companion.positiveEmotes
 import com.igorini.togepibot.TogepiBot.Companion.togepiBotAdmin
 import com.igorini.togepibot.commands.general.duel.crit.Crit
+import com.igorini.togepibot.commands.general.duel.spot.black.BlackSpotCommand
 import com.igorini.togepibot.ext.quotes
 import com.igorini.togepibot.ext.random
 import com.igorini.togepibot.model.*
@@ -84,16 +85,22 @@ class Duel : Command() {
                         throw CommandException("Хорошая попытка, $userDisplayName TehePelo")
                     }
 
-                    val leader = channel.duelLeaders.any { it.duelist.user.name == opponentUsername }
+                    fun duelPermitted(): Boolean {
+                        fun leader() = channel.duelLeaders.any { it.duelist.user.name == opponentUsername }
+                        fun blackSpot() = channel.blackSpots.any { it.duelist.user.name == opponentUsername }
+                        fun whiteSpot() = channel.whiteSpots.any { it.duelist.user.name == opponentUsername }
 
-                    if (!leader && !viewerOnlineExcept(messageEvent, opponentUsername, botUsers)) {
+                        return leader() || blackSpot() || whiteSpot()
+                    }
+
+                    if (!duelPermitted() && !viewerOnlineExcept(messageEvent, opponentUsername, botUsers)) {
                         throw CommandException("Пользователь $opponentUsername в чате не найден, или он бот. Kappa")
                     }
                 }
 
                 val opponentDisplayName = findDisplayName(opponentUsername)
 
-                var user = Duelists.findOrInsert(Users.findOrInsert(username, userDisplayName), channel)
+                val user = Duelists.findOrInsert(Users.findOrInsert(username, userDisplayName), channel)
 
                 if (user.hp <= 0) throw CommandException("Извините, @${user.user.displayName}, но Вы мертвы (${user.hp} хп). BibleThump Вас могут воскресить другие дуэлянты.")
                 //if (user.user.name != togepiBotAdmin && user.available?.isAfterNow ?: false) {
@@ -102,7 +109,9 @@ class Duel : Command() {
                     throw CommandException("${user.user.displayName}, Вы сможете снова подуэлиться через ${if (stunDuration.minutes > 0) stunDuration.minutes.toString() + " мин " else ""}${stunDuration.seconds} сек")
                 }
 
-                var opponent = Duelists.findOrInsert(Users.findOrInsert(opponentUsername, opponentDisplayName), channel)
+                val opponent = Duelists.findOrInsert(Users.findOrInsert(opponentUsername, opponentDisplayName), channel)
+                val opponentIsBlackSpot = channel.blackSpots.firstOrNull()?.duelist == opponent
+
                 val duelists = listOf(user, opponent)
                 val winner = duelists.random()
                 val loser = (duelists - winner).first()
@@ -110,10 +119,17 @@ class Duel : Command() {
                 val crit = if (winner == user) Crit.proc() else null
                 val damage = crit?.damage(base) ?: base.roundToInt()
 
-                // TODO: add kills if killed
                 var killed = false
-                var damageAfterInjury = if (damage >= loser.hp){
-                    if (loser.hp > 0) killed = true
+                var blackSpotKilled = false
+                var blackSpotReward = 0
+                var damageAfterInjury = if (damage >= loser.hp) {
+                    if (loser.hp > 0) {
+                        killed = true
+                        if (channel.blackSpots.firstOrNull()?.duelist == loser) {
+                            blackSpotKilled = true
+                            blackSpotReward = channel.blackSpots.firstOrNull()?.bounty ?: 0
+                        }
+                    }
                     loser.hp
                 } else damage
                 if (damageAfterInjury < minDamage) damageAfterInjury = minDamage
@@ -131,6 +147,12 @@ class Duel : Command() {
                             if (damageAfterInjury > maxDamage) maxDamage = damageAfterInjury
                             if (killed) kills++
                             if (hp > maxHp) maxHp = hp
+                            if (blackSpotKilled) {
+                                val bounty = channel.blackSpots.first().bounty
+                                hp += bounty
+                                totalBounty += bounty
+                                BlackSpotCommand.assignBlackSpot(channel)
+                            }
                         } else {
                             losses++
                             hp -= damageAfterInjury
@@ -138,7 +160,8 @@ class Duel : Command() {
                             crit?.let { available = DateTime.now().plusSeconds(crit.stunSec()) }
                         }
                         if (initiator) {
-                            available = DateTime.now().plusSeconds(calculateCooldown(randomViewer, hp))
+                            var cooldown = calculateCooldown(randomViewer, hp)
+                            available = DateTime.now().plusSeconds(cooldown)
                             if (ressurected) resurrects++
                         }
                         winrate = recalculateWinrate()
@@ -156,6 +179,7 @@ class Duel : Command() {
                 fun displayDuelist(duelist: Duelist) = "${displayTitle(duelist)}@${duelist.user.displayName} (${duelist.hp} хп)"
 
                 sendMessageToChannel(channelName, "/me ${displayDuelist(winner)} ${attackMessage()} ${displayDuelist(loser)} и ${damageMessages.random()} $damageAfterInjury ${hpAliases.random()}. $emote ${crit?.message() ?: ""}${if (killed) " @" + loser.user.displayName + " " + deathMessages.random() + " " + deathEmotes.random() else ""}${if (ressurected) " @" + winner.user.displayName + " " + ressurectMessages.random() + " " + ressurectEmotes.random() else ""}")
+                if (blackSpotKilled) sendMessageToChannel(channelName, "/me За убийство чёрной метки, @${winner.user.displayName} получает в награду ${blackSpotReward} хп.")
             }
         } catch (e: CommandException) {
             sendMessageToChannel(channelName, e.message)
@@ -180,6 +204,7 @@ class Duel : Command() {
     }
 
     // TODO: Move to an extension function to a class Command in kotlin-twitch-bot
+    // TODO: Use caching
     private fun findDisplayName(username: String): String {
         val user = twitchClient.userEndpoint.getUserByUserName(username)
         return if (user.isPresent) user.get().displayName else username

@@ -24,4 +24,6 @@ class Channel(id: EntityID<Int>) : IntEntity(id) {
     val duelists by Duelist referrersOn Duelists.channel
     val duelTops by DuelTop referrersOn DuelTops.channel
     val duelLeaders by DuelLeader referrersOn DuelLeaders.channel
+    val blackSpots by BlackSpot referrersOn BlackSpots.channel
+    val whiteSpots by WhiteSpot referrersOn WhiteSpots.channel
 }
