@@ -104,8 +104,8 @@ class Duel : Command() {
                 val user = Duelists.findOrInsert(Users.findOrInsert(username, userDisplayName), channel)
 
                 if (user.hp <= 0) throw CommandException("Извините, @${user.user.displayName}, но Вы мертвы (${user.hp} хп). BibleThump Вас могут воскресить другие дуэлянты.")
-                //if (user.user.name != togepiBotAdmin && user.available?.isAfterNow ?: false) {
-                if (user.available?.isAfterNow ?: false) {
+                if (user.user.name != togepiBotAdmin && user.available?.isAfterNow ?: false) {
+                //if (user.available?.isAfterNow ?: false) {
                     val stunDuration = Period(DateTime.now(), user.available)
                     throw CommandException("${user.user.displayName}, Вы сможете снова подуэлиться через ${if (stunDuration.minutes > 0) stunDuration.minutes.toString() + " мин " else ""}${stunDuration.seconds} сек")
                 }
@@ -159,7 +159,6 @@ class Duel : Command() {
                                 val bounty = channel.blackSpots.first().bounty
                                 hp += bounty
                                 totalBounty += bounty
-                                BlackSpotCommand.assignBlackSpot(channel)
                             }
                         } else {
                             losses++
@@ -186,7 +185,6 @@ class Duel : Command() {
                     whiteSpotRessurected = true
                     loser.critBuff = channel.whiteSpots.first().critBuff
                     loser.critBuffUntil = DateTime.now().plusMinutes(WhiteSpotCommand.buffDurationMins)
-                    WhiteSpotCommand.assignWhiteSpot(channel)
                 }
 
                 fun title(duelist: Duelist) = channel.duelTops.filter { it.duelist == duelist && !titlelessUsernames.contains(it.duelist.user.name)}.sortedBy { it.type }.firstOrNull()?.type?.title
@@ -199,6 +197,9 @@ class Duel : Command() {
                 val blackSpotMessage = if (blackSpotKilled) " За убийство чёрной метки, @${winner.user.displayName} получает в награду ${blackSpotReward} хп." else ""
                 val whiteSpotMessage =  if (whiteSpotRessurected) " За воскрешение белой метки, @${loser.user.displayName} получает в награду баф +${loser.critBuff}% к шансу крита на ${WhiteSpotCommand.buffDurationMins} мин." else ""
                 sendMessageToChannel(channelName, "/me ${displayDuelist(winner)} ${attackMessage()} ${displayDuelist(loser)} и ${damageMessages.random()} $damageAfterInjury ${hpAliases.random()}. $emote ${crit?.message() ?: ""}${if (killed) " @" + loser.user.displayName + " " + deathMessages.random() + " " + deathEmotes.random() else ""}${if (ressurected) " @" + winner.user.displayName + " " + ressurectMessages.random() + " " + ressurectEmotes.random() else ""}$blackSpotMessage$whiteSpotMessage")
+
+                if (blackSpotKilled) channel.blackSpots.first().delete()
+                if (whiteSpotRessurected) channel.whiteSpots.first().delete()
             }
         } catch (e: CommandException) {
             sendMessageToChannel(channelName, e.message)

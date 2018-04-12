@@ -17,24 +17,6 @@ class WhiteSpotCommand : Command() {
     companion object {
         const val whiteSpotSymbol = '○'
         @JvmField val buffDurationMins = 15
-
-        fun assignWhiteSpot(channel: Channel) {
-            val duelist: Duelist
-            try {
-                duelist = channel.duelists.filter { it.hp <= 0 }.random()
-            } catch (e: NoSuchElementException) {
-                throw CommandException("Не удалось найти мертвых дуэлянтов.")
-            }
-            WhiteSpots.upsert(channel, duelist, buff().amount())
-        }
-
-        private fun buff()  = when (percents.random()) {
-            in 1..UltraBuff.chance() -> UltraBuff
-            in (UltraBuff.chance() + 1)..MegaBuff.chance() -> MegaBuff
-            in (MegaBuff.chance() + 1)..TripleBuff.chance() -> TripleBuff
-            in (TripleBuff.chance() + 1)..DoubleBuff.chance() -> DoubleBuff
-            else -> NormalBuff
-        }
     }
 
     val logger = KotlinLogging.logger {}
@@ -66,5 +48,23 @@ class WhiteSpotCommand : Command() {
             sendMessageToChannel(channelName, e.message)
             return
         }
+    }
+
+    private fun assignWhiteSpot(channel: Channel) {
+        val duelist: Duelist
+        try {
+            duelist = channel.duelists.filter { it.hp <= 0 }.random()
+        } catch (e: NoSuchElementException) {
+            throw CommandException("Мёртвых дуэлянтов не обнаружено.")
+        }
+        WhiteSpots.upsert(channel, duelist, buff().amount())
+    }
+
+    private fun buff()  = when (percents.random()) {
+        in 1..UltraBuff.chance() -> UltraBuff
+        in (UltraBuff.chance() + 1)..MegaBuff.chance() -> MegaBuff
+        in (MegaBuff.chance() + 1)..TripleBuff.chance() -> TripleBuff
+        in (TripleBuff.chance() + 1)..DoubleBuff.chance() -> DoubleBuff
+        else -> NormalBuff
     }
 }
