@@ -32,7 +32,7 @@ class Duel : Command() {
         @JvmField val baseDamage = 0.1
         @JvmField val cooldownForRandom = 30
         @JvmField val cooldownForSpecific = 60
-        @JvmField val cooldownHpFactor = 0.1
+        @JvmField val cooldownHpFactor = 0.01
         @JvmField val titlelessUsernames = listOf(togepiBotAdmin)
         // TODO: For variety add with what
         @JvmField val simpleAttackMessages = listOf("побеждает", "уничтожает", "бьёт", "побивает", "кусает", "пинает", "делает кусь", "отвлекает", "делает вжик-вжик", "атакует", "нападает на", "пронзает", "ранит", "даёт пощёчину", "даёт щелбан", "даёт подзатыльник", "даёт леща", "шлёпает", "унижает", "ставит на колени", "царапает")
