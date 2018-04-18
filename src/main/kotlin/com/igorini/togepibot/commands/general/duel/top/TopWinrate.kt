@@ -7,7 +7,7 @@ import java.math.BigDecimal
 /** Represents a command for showing duelists with the highest winrates */
 class TopWinrate : Top() {
     companion object {
-        @JvmField val minimumAmountOfDuels = 20
+        @JvmField val minimumAmountOfDuels = 30
     }
 
     init {
