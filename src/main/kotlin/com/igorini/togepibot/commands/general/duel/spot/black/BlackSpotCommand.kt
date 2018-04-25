@@ -27,7 +27,7 @@ class BlackSpotCommand : Command() {
 
     init {
         command = "черная"
-        commandAliases = arrayOf("ЧЕРНАЯ", "Черная", "чёрная", "черная_метка", "чёрная_метка", "black", "BLACK", "Black", "black_spot")
+        commandAliases = arrayOf("ЧЕРНАЯ", "Черная", "чёрная", "черная_метка", "чёрная_метка", "black", "BLACK", "Black", "black_spot", "метка", "spot")
         category = "general"
         description = "черная"
         requiredPermissions.add(CommandPermission.EVERYONE)
