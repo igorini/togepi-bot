@@ -1,6 +1,7 @@
 package com.igorini.togepibot.commands.general.duel.spot.black
 
 import com.igorini.kotlintwitchbot.ext.viewers
+import com.igorini.togepibot.TogepiBot.Companion.botUsers
 import com.igorini.togepibot.TogepiBot.Companion.percents
 import com.igorini.togepibot.commands.general.duel.CommandException
 import com.igorini.togepibot.commands.general.duel.crit.DoubleCrit
@@ -54,7 +55,8 @@ class BlackSpotCommand : Command() {
     }
 
     private fun assignBlackSpot(channel: Channel, messageEvent: ChannelMessageEvent) {
-        val duelist = channel.duelists(viewers(messageEvent)!!).filter { it.hp > 0 }.randomOrNull() ?: channel.duelists.filter { it.hp > 0 }.random()
+        val predicate: (Duelist) -> Boolean = { !botUsers.contains(it.user.name) && it.hp > 0 }
+        val duelist = channel.duelists(viewers(messageEvent)!!).filter(predicate).randomOrNull() ?: channel.duelists.filter(predicate).random()
         BlackSpots.upsert(channel, duelist, bounty().reward())
     }
 

@@ -1,6 +1,7 @@
 package com.igorini.togepibot.commands.general.duel.spot.white
 
 import com.igorini.kotlintwitchbot.ext.viewers
+import com.igorini.togepibot.TogepiBot.Companion.botUsers
 import com.igorini.togepibot.TogepiBot.Companion.percents
 import com.igorini.togepibot.commands.general.duel.CommandException
 import com.igorini.togepibot.commands.general.duel.spot.white.buff.*
@@ -55,7 +56,8 @@ class WhiteSpotCommand : Command() {
     private fun assignWhiteSpot(channel: Channel, messageEvent: ChannelMessageEvent) {
         val duelist: Duelist
         try {
-            duelist = channel.duelists(viewers(messageEvent)!!).filter { it.hp <= 0 }.randomOrNull() ?: channel.duelists.filter { it.hp <= 0 }.random()
+            val predicate: (Duelist) -> Boolean = { !botUsers.contains(it.user.name) && it.hp <= 0 }
+            duelist = channel.duelists(viewers(messageEvent)!!).filter(predicate).randomOrNull() ?: channel.duelists.filter(predicate).random()
         } catch (e: NoSuchElementException) {
             throw CommandException("Мёртвых дуэлянтов не обнаружено.")
         }
