@@ -32,7 +32,6 @@ class Duel : Command() {
         @JvmField val baseDamage = 0.1
         @JvmField val cooldownForSpecific = 60
         @JvmField val cooldownHpFactor = 0.01
-        @JvmField val titlelessUsernames = listOf(togepiBotAdmin)
         // TODO: For variety add with what
         @JvmField val simpleAttackMessages = listOf("побеждает", "уничтожает", "бьёт", "побивает", "кусает", "пинает", "делает кусь", "отвлекает", "делает вжик-вжик", "атакует", "нападает на", "пронзает", "ранит", "даёт пощёчину", "даёт щелбан", "даёт подзатыльник", "даёт леща", "шлёпает", "унижает", "ставит на колени", "царапает")
         @JvmField val doesMessages = listOf("атакует", "пронзает", "ранит", "царапает", "штурмует", "режет", "рассекает", "рубит", "сечёт", "протыкает", "выкалывает", "вырубает", "ударяет", "травмирует", "жалит", "повреждает", "дубасит", "жахает")
@@ -187,7 +186,7 @@ class Duel : Command() {
                     loser.critBuffUntil = DateTime.now().plusMinutes(WhiteSpotCommand.buffDurationMins)
                 }
 
-                fun title(duelist: Duelist) = channel.duelTops.filter { it.duelist == duelist && !titlelessUsernames.contains(it.duelist.user.name)}.sortedBy { it.type }.firstOrNull()?.type?.title
+                fun title(duelist: Duelist) = channel.duelTops.filter { it.duelist == duelist }.sortedBy { it.type }.firstOrNull()?.type?.title
                 fun displayTitle(duelist: Duelist) : String {
                     val title = title(duelist)
                     return if (title != null) "${title.quotes()} " else ""
