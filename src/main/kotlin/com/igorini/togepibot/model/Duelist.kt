@@ -27,6 +27,7 @@ object Duelists : IntIdTable() {
     val totalBounty = integer("total_bounty").default(0)
     val critBuff = integer("crit_buff").default(0)
     val critBuffUntil = datetime("crit_buff_until").nullable()
+    val preferredTitle = varchar("preferred_title", 50).nullable()
 
     fun findOrInsert(duelistUser: User, duelistChannel: Channel) = duelistChannel.duelists.find { it.user == duelistUser } ?: Duelist.new {
         channel = duelistChannel
@@ -54,6 +55,7 @@ class Duelist(id: EntityID<Int>) : IntEntity(id) {
     var totalBounty by Duelists.totalBounty
     var critBuff by Duelists.critBuff
     var critBuffUntil by Duelists.critBuffUntil
+    var preferredTitle by Duelists.preferredTitle
 }
 
 fun Duelist.recalculateWinrate() = BigDecimal(wins.toString()).divide(BigDecimal(duels.toString()), 6, RoundingMode.HALF_UP).multiply(BigDecimal("100"))

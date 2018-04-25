@@ -186,10 +186,13 @@ class Duel : Command() {
                     loser.critBuffUntil = DateTime.now().plusMinutes(WhiteSpotCommand.buffDurationMins)
                 }
 
-                fun title(duelist: Duelist) = channel.duelTops.filter { it.duelist == duelist }.sortedBy { it.type }.firstOrNull()?.type?.title
+                fun title(duelist: Duelist) = channel.duelTops.filter { it.duelist.user.name == duelist.user.name }.sortedBy { it.type }.firstOrNull()?.type?.title
                 fun displayTitle(duelist: Duelist) : String {
-                    val title = title(duelist)
-                    return if (title != null) "${title.quotes()} " else ""
+                    var title = title(duelist)
+                    return if (title != null) {
+                        if (duelist.preferredTitle != null) title = duelist.preferredTitle
+                        "${title!!.quotes()} "
+                    } else ""
                 }
                 fun spotIcon(duelist: Duelist) : String {
                     if (channel.blackSpots.any { it.duelist == duelist } ) {
