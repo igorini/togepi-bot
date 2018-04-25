@@ -1,9 +1,11 @@
 package com.igorini.togepibot.commands.general.duel.spot.white
 
+import com.igorini.kotlintwitchbot.ext.viewers
 import com.igorini.togepibot.TogepiBot.Companion.percents
 import com.igorini.togepibot.commands.general.duel.CommandException
 import com.igorini.togepibot.commands.general.duel.spot.white.buff.*
 import com.igorini.togepibot.ext.random
+import com.igorini.togepibot.ext.randomOrNull
 import com.igorini.togepibot.model.*
 import me.philippheuer.twitch4j.events.event.irc.ChannelMessageEvent
 import me.philippheuer.twitch4j.message.commands.Command
@@ -39,7 +41,7 @@ class WhiteSpotCommand : Command() {
             transaction {
                 val channel = Channels.findOrInsert(channelName)
 
-                if (channel.whiteSpots.empty()) assignWhiteSpot(channel)
+                if (channel.whiteSpots.empty()) assignWhiteSpot(channel, messageEvent)
 
                 val whiteSpot = channel.whiteSpots.first()
                 sendMessageToChannel(channelName, "Белая метка $whiteSpotSymbol на @${whiteSpot.duelist.user.displayName}. Воскресив его/её вы получите баф +${whiteSpot.critBuff}% к шансу крита на $buffDurationMins мин.")
@@ -50,10 +52,10 @@ class WhiteSpotCommand : Command() {
         }
     }
 
-    private fun assignWhiteSpot(channel: Channel) {
+    private fun assignWhiteSpot(channel: Channel, messageEvent: ChannelMessageEvent) {
         val duelist: Duelist
         try {
-            duelist = channel.duelists.filter { it.hp <= 0 }.random()
+            duelist = channel.duelists(viewers(messageEvent)!!).filter { it.hp <= 0 }.randomOrNull() ?: channel.duelists.filter { it.hp <= 0 }.random()
         } catch (e: NoSuchElementException) {
             throw CommandException("Мёртвых дуэлянтов не обнаружено.")
         }

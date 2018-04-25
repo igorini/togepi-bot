@@ -27,3 +27,6 @@ class Channel(id: EntityID<Int>) : IntEntity(id) {
     val blackSpots by BlackSpot referrersOn BlackSpots.channel
     val whiteSpots by WhiteSpot referrersOn WhiteSpots.channel
 }
+
+/** Transforms a list of usernames into a list of duelists. Creates duelists and users if they were not present */
+fun Channel.duelists(viewers: List<String>) = viewers.map { Duelists.findOrInsert(Users.findOrInsert(it, it), this) }

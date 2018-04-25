@@ -1,10 +1,12 @@
 package com.igorini.togepibot.commands.general.duel.spot.black
 
+import com.igorini.kotlintwitchbot.ext.viewers
 import com.igorini.togepibot.TogepiBot.Companion.percents
 import com.igorini.togepibot.commands.general.duel.CommandException
 import com.igorini.togepibot.commands.general.duel.crit.DoubleCrit
 import com.igorini.togepibot.commands.general.duel.spot.black.bounty.*
 import com.igorini.togepibot.ext.random
+import com.igorini.togepibot.ext.randomOrNull
 import com.igorini.togepibot.model.*
 import me.philippheuer.twitch4j.events.event.irc.ChannelMessageEvent
 import me.philippheuer.twitch4j.message.commands.Command
@@ -40,7 +42,7 @@ class BlackSpotCommand : Command() {
             transaction {
                 val channel = Channels.findOrInsert(channelName)
 
-                if (channel.blackSpots.empty()) assignBlackSpot(channel)
+                if (channel.blackSpots.empty()) assignBlackSpot(channel, messageEvent)
 
                 val blackSpot = channel.blackSpots.first()
                 sendMessageToChannel(channelName, "Чёрная метка ${blackSpotSymbol} на @${blackSpot.duelist.user.displayName}. За его/её голову назначена награда в ${blackSpot.bounty} хп. Шанс крита по метке увеличен с ${DoubleCrit.chance()}% до ${DoubleCrit.chance() + blackSpotCritBonus}%")
@@ -51,8 +53,8 @@ class BlackSpotCommand : Command() {
         }
     }
 
-    private fun assignBlackSpot(channel: Channel) {
-        val duelist = channel.duelists.filter { it.hp > 0 }.random()
+    private fun assignBlackSpot(channel: Channel, messageEvent: ChannelMessageEvent) {
+        val duelist = channel.duelists(viewers(messageEvent)!!).filter { it.hp > 0 }.randomOrNull() ?: channel.duelists.filter { it.hp > 0 }.random()
         BlackSpots.upsert(channel, duelist, bounty().reward())
     }
 
