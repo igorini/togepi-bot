@@ -30,7 +30,6 @@ class Duel : Command() {
         @JvmField val initialHP = 100
         @JvmField val minDamage = 5
         @JvmField val baseDamage = 0.1
-        @JvmField val cooldownForRandom = 30
         @JvmField val cooldownForSpecific = 60
         @JvmField val cooldownHpFactor = 0.01
         @JvmField val titlelessUsernames = listOf(togepiBotAdmin)
@@ -70,7 +69,6 @@ class Duel : Command() {
                 val username = messageEvent.user.name.toLowerCase()
                 val userDisplayName = messageEvent.user.displayName!!
                 val opponentUsername: String?
-                var randomViewer = false
                 val channel = Channels.findOrInsert(channelName)
 
                 if (words.size == 1) {
@@ -82,7 +80,6 @@ class Duel : Command() {
                     if (opponentUsername == username) {
                         throw CommandException("Хорошая попытка, $userDisplayName TehePelo")
                     }
-                    randomViewer = true
                 } else {
                     opponentUsername = words[1].replaceFirst("^@".toRegex(), "").trim().toLowerCase()
                     if (opponentUsername == username) {
@@ -170,7 +167,7 @@ class Duel : Command() {
                             crit?.let { available = DateTime.now().plusSeconds(crit.stunSec()) }
                         }
                         if (initiator) {
-                            var cooldown = calculateCooldown(randomViewer, hp)
+                            var cooldown = calculateCooldown(hp)
                             available = DateTime.now().plusSeconds(cooldown)
                             if (ressurected) resurrects++
                         }
@@ -220,11 +217,7 @@ class Duel : Command() {
         else -> "${howMessage.random()} ${simpleAttackMessages.random()}"
     }
 
-    fun calculateCooldown(randomViewer: Boolean, hp: Int): Int {
-        val baseCooldown = if (randomViewer) cooldownForRandom else cooldownForSpecific
-        val cooldown = baseCooldown + ((hp - initialHP) * cooldownHpFactor).roundToInt()
-        return cooldown
-    }
+    fun calculateCooldown(hp: Int) = cooldownForSpecific + ((hp - initialHP) * cooldownHpFactor).roundToInt()
 
     // TODO: Move to an extension function to a class Command in kotlin-twitch-bot
     // TODO: Use caching
