@@ -119,7 +119,7 @@ class Duel : Command() {
 
                 fun bonusCritChance() : Int {
                     val blackSpotCritBonus = if (opponentIsBlackSpot) BlackSpotCommand.blackSpotCritBonus else 0
-                    val whiteSpotCritBonus  = if (winner.critBuffUntil?.isBeforeNow() ?: false) winner.critBuff else 0
+                    val whiteSpotCritBonus  = if (winner.critBuffUntil?.isAfterNow() ?: false) winner.critBuff else 0
                     return blackSpotCritBonus + whiteSpotCritBonus
                 }
 
@@ -191,7 +191,7 @@ class Duel : Command() {
                     val title = title(duelist)
                     return if (title != null) "${title.quotes()} " else ""
                 }
-                fun spotSymbol(duelist: Duelist) : String {
+                fun spotIcon(duelist: Duelist) : String {
                     if (channel.blackSpots.any { it.duelist == duelist } ) {
                         return " ${BlackSpotCommand.blackSpotSymbol}"
                     } else if (channel.whiteSpots.any { it.duelist == duelist }) {
@@ -199,10 +199,12 @@ class Duel : Command() {
                     }
                     return ""
                 }
-                fun displayDuelist(duelist: Duelist) = "${displayTitle(duelist)}@${duelist.user.displayName}${spotSymbol(duelist)} (${duelist.hp} хп)"
+                fun buffIcons(duelist: Duelist) = if (duelist.critBuffUntil?.isAfterNow() ?: false) " ${WhiteSpotCommand.buffSymbol}" else ""
+                fun icons(duelist: Duelist) = "${spotIcon(duelist)}${buffIcons(duelist)}"
+                fun displayDuelist(duelist: Duelist) = "${displayTitle(duelist)}@${duelist.user.displayName}${icons(duelist)} (${duelist.hp} хп)"
 
                 val blackSpotMessage = if (blackSpotKilled) " За убийство чёрной метки, @${winner.user.displayName} получает в награду ${blackSpotReward} хп." else ""
-                val whiteSpotMessage =  if (whiteSpotRessurected) " За воскрешение белой метки, @${loser.user.displayName} получает в награду баф +${loser.critBuff}% к шансу крита на ${WhiteSpotCommand.buffDurationMins} мин." else ""
+                val whiteSpotMessage =  if (whiteSpotRessurected) " За воскрешение белой метки, @${loser.user.displayName} получает в награду баф ${WhiteSpotCommand.buffSymbol} +${loser.critBuff}% к шансу крита на ${WhiteSpotCommand.buffDurationMins} мин." else ""
                 sendMessageToChannel(channelName, "/me ${displayDuelist(winner)} ${attackMessage()} ${displayDuelist(loser)} и ${damageMessages.random()} $damageAfterInjury ${hpAliases.random()}. $emote ${crit?.message() ?: ""}${if (killed) " @" + loser.user.displayName + " " + deathMessages.random() + " " + deathEmotes.random() else ""}${if (ressurected) " @" + winner.user.displayName + " " + ressurectMessages.random() + " " + ressurectEmotes.random() else ""}$blackSpotMessage$whiteSpotMessage")
 
                 if (blackSpotKilled) channel.blackSpots.first().delete()

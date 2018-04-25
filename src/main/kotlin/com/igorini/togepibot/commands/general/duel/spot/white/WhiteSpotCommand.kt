@@ -19,6 +19,7 @@ class WhiteSpotCommand : Command() {
 
     companion object {
         const val whiteSpotSymbol = '○'
+        const val buffSymbol = '⍟'
         @JvmField val buffDurationMins = 15
     }
 
@@ -45,7 +46,7 @@ class WhiteSpotCommand : Command() {
                 if (channel.whiteSpots.empty()) assignWhiteSpot(channel, messageEvent)
 
                 val whiteSpot = channel.whiteSpots.first()
-                sendMessageToChannel(channelName, "Белая метка $whiteSpotSymbol на @${whiteSpot.duelist.user.displayName}. Воскресив его/её вы получите баф +${whiteSpot.critBuff}% к шансу крита на $buffDurationMins мин.")
+                sendMessageToChannel(channelName, "Белая метка $whiteSpotSymbol на @${whiteSpot.duelist.user.displayName}. Воскресив его/её вы получите баф ${buffSymbol} +${whiteSpot.critBuff}% к шансу крита на $buffDurationMins мин.")
             }
         } catch (e: CommandException) {
             sendMessageToChannel(channelName, e.message)
