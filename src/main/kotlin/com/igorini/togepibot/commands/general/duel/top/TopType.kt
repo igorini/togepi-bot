@@ -9,5 +9,6 @@ enum class TopType(val title: String) {
     RESURRECTS("Ангел"),
     WINRATE("Снайпер"),
     DUELS("Ветеран"),
-    DEATHS("Кенни")
+    DEATHS("Кенни"),
+    BOUNTY("Шериф")
 }

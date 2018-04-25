@@ -28,6 +28,7 @@ class TogepiBot : TwitchBot(), KoinComponent {
         registerCommand(TopKills())
         registerCommand(TopMaxHp())
         registerCommand(TopResurrects())
+        registerCommand(TopBounty())
         registerCommand(Hp())
         registerCommand(BlackSpotCommand())
         registerCommand(WhiteSpotCommand())
