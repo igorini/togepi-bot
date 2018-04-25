@@ -74,10 +74,13 @@ class Duel : Command() {
                 val channel = Channels.findOrInsert(channelName)
 
                 if (words.size == 1) {
-                    opponentUsername = randomViewerExcept(messageEvent, botUsers.plus(username))
+                    opponentUsername = channel.blackSpots.firstOrNull()?.duelist?.user?.name ?: randomViewerExcept(messageEvent, botUsers.plus(username))
                     if (opponentUsername == null) {
                         // TODO: Modify kotlin-twitch-bot and throw an exception instead
                         throw CommandException("Достойных соперников не обнаружено. Kappa")
+                    }
+                    if (opponentUsername == username) {
+                        throw CommandException("Хорошая попытка, $userDisplayName TehePelo")
                     }
                     randomViewer = true
                 } else {
