@@ -192,7 +192,15 @@ class Duel : Command() {
                     val title = title(duelist)
                     return if (title != null) "${title.quotes()} " else ""
                 }
-                fun displayDuelist(duelist: Duelist) = "${displayTitle(duelist)}@${duelist.user.displayName} (${duelist.hp} хп)"
+                fun spotSymbol(duelist: Duelist) : String {
+                    if (channel.blackSpots.any { it.duelist == duelist } ) {
+                        return " ${BlackSpotCommand.blackSpotSymbol}"
+                    } else if (channel.whiteSpots.any { it.duelist == duelist }) {
+                        return " ${WhiteSpotCommand.whiteSpotSymbol}"
+                    }
+                    return ""
+                }
+                fun displayDuelist(duelist: Duelist) = "${displayTitle(duelist)}@${duelist.user.displayName}${spotSymbol(duelist)} (${duelist.hp} хп)"
 
                 val blackSpotMessage = if (blackSpotKilled) " За убийство чёрной метки, @${winner.user.displayName} получает в награду ${blackSpotReward} хп." else ""
                 val whiteSpotMessage =  if (whiteSpotRessurected) " За воскрешение белой метки, @${loser.user.displayName} получает в награду баф +${loser.critBuff}% к шансу крита на ${WhiteSpotCommand.buffDurationMins} мин." else ""
