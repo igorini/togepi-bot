@@ -50,7 +50,7 @@ class Duel : Command() {
 
     init {
         command = "дуэль"
-        commandAliases = arrayOf("duel", "Duel", "DUEL", "fight", "поединок", "махач", "бой", "битва", "борьба", "вызов", "вызываю", "драка", "Дуэль", "ДУЭЛЬ", "дуель", "Дуель", "ДУЕЛЬ", "le'km")
+        commandAliases = arrayOf("duel", "Duel", "DUEL", "fight", "поединок", "махач", "бой", "битва", "борьба", "вызов", "вызываю", "драка", "Дуэль", "ДУЭЛЬ", "дуель", "Дуель", "ДУЕЛЬ", "le'km", "вжик", "daud", "дауд", "крит", "crit", "убить", "kill", "!даудель")
         category = "general"
         description = "Вызовите оппонента на дуэль"
         requiredPermissions.add(CommandPermission.EVERYONE)
@@ -106,7 +106,7 @@ class Duel : Command() {
                 if (user.user.name != togepiBotAdmin && user.available?.isAfterNow ?: false) {
                 //if (user.available?.isAfterNow ?: false) {
                     val stunDuration = Period(DateTime.now(), user.available)
-                    throw CommandException("${user.user.displayName}, Вы сможете снова подуэлиться через ${if (stunDuration.minutes > 0) stunDuration.minutes.toString() + " мин " else ""}${stunDuration.seconds} сек")
+                    throw CommandException("${user.user.displayName}, Вы сможете снова подуэлиться через ${if (stunDuration.minutes > 0) stunDuration.minutes.toString() + " мин " else ""}${stunDuration.seconds} сек, k? ResidentSleeper")
                 }
 
                 val opponent = Duelists.findOrInsert(Users.findOrInsert(opponentUsername, opponentDisplayName), channel)
