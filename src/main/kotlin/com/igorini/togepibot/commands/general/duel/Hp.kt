@@ -1,9 +1,9 @@
 package com.igorini.togepibot.commands.general.duel
 
-import com.igorini.kotlintwitchbot.ext.viewerOnlineExcept
-import com.igorini.togepibot.TogepiBot
+import com.igorini.togepibot.TogepiBot.Companion.botUsers
 import com.igorini.togepibot.model.Channels
 import com.igorini.togepibot.model.Duelist
+import com.igorini.togepibot.model.User
 import com.igorini.togepibot.model.Users
 import me.philippheuer.twitch4j.events.event.irc.ChannelMessageEvent
 import me.philippheuer.twitch4j.message.commands.Command
@@ -28,22 +28,31 @@ class Hp : Command() {
         super.executeCommand(messageEvent)
 
         val channelName = messageEvent!!.channel.name!!
-        var targetUsername = messageEvent.user.name.toLowerCase()
+        var targetUsername: String
         val words = messageEvent.message.split("\\s".toRegex())
 
-        if (words.size > 1) {
-            targetUsername = words[1].replaceFirst("^@".toRegex(), "").trim().toLowerCase()
-            if (!viewerOnlineExcept(messageEvent, targetUsername, TogepiBot.botUsers)) {
-                sendMessageToChannel(channelName,"Пользователь $targetUsername в чате не найден, или он бот. Kappa")
-                return
-            }
-        }
+        try {
+            transaction {
+                val channel = Channels.findOrInsert(channelName)
 
-        transaction {
-            val channel = Channels.findOrInsert(channelName)
-            val user = Users.findOrInsert(targetUsername, messageEvent.user.displayName)
-            val duelist = Duelist.all().firstOrNull { it.channel == channel && it.user == user }
-            sendMessageToChannel(channelName, "У @${user.displayName} ${duelist?.hp ?: Duel.initialHP} хп")
+                val user: User
+                if (words.size > 1) {
+                    targetUsername = words[1].replaceFirst("^@".toRegex(), "").trim().toLowerCase()
+                    val userFound: (Duelist) -> Boolean = { !botUsers.contains(it.user.name) && (it.user.name == targetUsername || it.user.displayName?.toLowerCase() == targetUsername) }
+
+                    if (channel.duelists.none(userFound)) throw CommandException("Пользователь $targetUsername не найден")
+
+                    user = Users.findOrInsert(targetUsername, targetUsername)
+                } else {
+                    user = Users.findOrInsert(messageEvent.user.displayName.toLowerCase(), messageEvent.user.displayName)
+                }
+
+                val duelist = Duelist.all().firstOrNull { it.channel == channel && it.user == user }
+                sendMessageToChannel(channelName, "У @${user.displayName} ${duelist?.hp ?: Duel.initialHP} хп")
+            }
+        } catch (e: CommandException) {
+            sendMessageToChannel(channelName, e.message)
+            return
         }
     }
 }
