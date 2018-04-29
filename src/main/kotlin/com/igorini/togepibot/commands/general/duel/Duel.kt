@@ -30,9 +30,7 @@ class Duel : Command() {
         @JvmField val initialHP = 100
         @JvmField val minDamage = 5
         @JvmField val baseDamage = 0.1
-        @JvmField val cooldownForSpecific = 60
-        @JvmField val cooldownHpFactor = 0.01
-        // TODO: For variety add with what
+        @JvmField val cooldownForSpecific = 45
         @JvmField val simpleAttackMessages = listOf("побеждает", "уничтожает", "бьёт", "побивает", "кусает", "пинает", "делает кусь", "отвлекает", "делает вжик-вжик", "атакует", "нападает на", "пронзает", "ранит", "даёт пощёчину", "даёт щелбан", "даёт подзатыльник", "даёт леща", "шлёпает", "унижает", "ставит на колени", "царапает")
         @JvmField val doesMessages = listOf("атакует", "пронзает", "ранит", "царапает", "штурмует", "режет", "рассекает", "рубит", "сечёт", "протыкает", "выкалывает", "вырубает", "ударяет", "травмирует", "жалит", "повреждает", "дубасит", "жахает")
         @JvmField val shootMessages = listOf("стреляет", "пуляет", "выстреливает", "делает пиу-пиу", "делает точный выстрел")
@@ -166,8 +164,7 @@ class Duel : Command() {
                             crit?.let { available = DateTime.now().plusSeconds(crit.stunSec()) }
                         }
                         if (initiator) {
-                            var cooldown = calculateCooldown(hp)
-                            available = DateTime.now().plusSeconds(cooldown)
+                            available = DateTime.now().plusSeconds(cooldownForSpecific)
                             if (ressurected) resurrects++
                         }
                         winrate = recalculateWinrate()
@@ -228,8 +225,6 @@ class Duel : Command() {
         3 -> "${howMessage.random()} ${shootMessages.random()} из ${weapons.random()} в ${targetMessages.random()}"
         else -> "${howMessage.random()} ${simpleAttackMessages.random()}"
     }
-
-    fun calculateCooldown(hp: Int) = cooldownForSpecific + ((hp - initialHP) * cooldownHpFactor).roundToInt()
 
     // TODO: Move to an extension function to a class Command in kotlin-twitch-bot
     // TODO: Use caching
