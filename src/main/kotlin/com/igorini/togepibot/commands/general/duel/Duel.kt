@@ -9,6 +9,7 @@ import com.igorini.togepibot.TogepiBot.Companion.togepiBotAdmin
 import com.igorini.togepibot.commands.general.duel.crit.Crit
 import com.igorini.togepibot.commands.general.duel.spot.black.BlackSpotCommand
 import com.igorini.togepibot.commands.general.duel.spot.white.WhiteSpotCommand
+import com.igorini.togepibot.ext.displayRus
 import com.igorini.togepibot.ext.quotes
 import com.igorini.togepibot.ext.random
 import com.igorini.togepibot.model.*
@@ -31,6 +32,8 @@ class Duel : Command() {
         @JvmField val minDamage = 5
         @JvmField val baseDamage = 0.1
         @JvmField val cooldownForSpecific = 45
+        @JvmField val autoresCooldownSec = 5 * 60
+        @JvmField val ressurectHp = (initialHP / 2.0).roundToInt()
         @JvmField val simpleAttackMessages = listOf("побеждает", "уничтожает", "бьёт", "побивает", "кусает", "пинает", "делает кусь", "отвлекает", "делает вжик-вжик", "атакует", "нападает на", "пронзает", "ранит", "даёт пощёчину", "даёт щелбан", "даёт подзатыльник", "даёт леща", "шлёпает", "унижает", "ставит на колени", "царапает")
         @JvmField val doesMessages = listOf("атакует", "пронзает", "ранит", "царапает", "штурмует", "режет", "рассекает", "рубит", "сечёт", "протыкает", "выкалывает", "вырубает", "ударяет", "травмирует", "жалит", "повреждает", "дубасит", "жахает")
         @JvmField val shootMessages = listOf("стреляет", "пуляет", "выстреливает", "делает пиу-пиу", "делает точный выстрел")
@@ -100,11 +103,18 @@ class Duel : Command() {
 
                 val user = Duelists.findOrInsert(Users.findOrInsert(username, userDisplayName), channel)
 
-                if (user.hp <= 0) throw CommandException("Извините, @${user.user.displayName}, но Вы мертвы (${user.hp} хп). BibleThump Вас могут воскресить другие дуэлянты.")
-                if (user.user.name != togepiBotAdmin && user.available?.isAfterNow ?: false) {
-                //if (user.available?.isAfterNow ?: false) {
+                if (user.hp <= 0) {
+                    if (user.deadUntil?.isAfterNow ?: false) {
+                        val deadDuration = Period(DateTime.now(), user.deadUntil)
+                        throw CommandException("Извините, @${user.user.displayName}, но вы мертвы (${user.hp} хп). BibleThump Вас могут воскресить другие, или вы воскресните сами c ${ressurectHp} хп если кинете дуэль через ${deadDuration.displayRus()}")
+                    } else {
+                        user.hp = ressurectHp
+                    }
+                }
+                //if (user.user.name != togepiBotAdmin && user.available?.isAfterNow ?: false) {
+                if (user.available?.isAfterNow ?: false) {
                     val stunDuration = Period(DateTime.now(), user.available)
-                    throw CommandException("${user.user.displayName}, Вы сможете снова подуэлиться через ${if (stunDuration.minutes > 0) stunDuration.minutes.toString() + " мин " else ""}${stunDuration.seconds} сек, k? ResidentSleeper")
+                    throw CommandException("${user.user.displayName}, вы сможете снова подуэлиться через ${stunDuration.displayRus()}, k? ResidentSleeper")
                 }
 
                 val opponent = Duelists.findOrInsert(Users.findOrInsert(opponentUsername, opponentDisplayName), channel)
@@ -160,7 +170,10 @@ class Duel : Command() {
                         } else {
                             losses++
                             hp -= damageAfterInjury
-                            if (killed) deaths++
+                            if (killed) {
+                                deaths++
+                                deadUntil = DateTime.now().plusSeconds(autoresCooldownSec)
+                            }
                             crit?.let { available = DateTime.now().plusSeconds(crit.stunSec()) }
                         }
                         if (initiator) {
