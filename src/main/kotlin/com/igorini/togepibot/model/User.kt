@@ -4,6 +4,7 @@ import org.jetbrains.exposed.dao.EntityID
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.IntIdTable
+import org.jetbrains.exposed.sql.or
 
 /** Represents a user model */
 @Suppress("unused")
@@ -13,7 +14,7 @@ object Users : IntIdTable() {
     val bot = bool("bot").default(false)
 
     fun findOrInsert(username: String, userDisplayName: String): User {
-        val result = User.find { name eq username }
+        val result = User.find { (name eq username) or (displayName eq userDisplayName) }
         return if (result.empty()) {
             User.new {
                 name = username

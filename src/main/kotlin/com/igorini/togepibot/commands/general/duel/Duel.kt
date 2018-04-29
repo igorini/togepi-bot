@@ -91,12 +91,12 @@ class Duel : Command() {
                         return leader() || blackSpot() || whiteSpot()
                     }
 
-                    if (!duelPermitted() && !viewerOnlineExcept(messageEvent, opponentUsername, botUsers)) {
+                    if (!duelPermitted() && !viewerOnlineExcept(messageEvent, opponentUsername, botUsers) && channel.duelists.none { !botUsers.contains(it.user.name) && it.user.displayName?.toLowerCase() == opponentUsername }) {
                         throw CommandException("Пользователь $opponentUsername в чате не найден, или он бот. Kappa")
                     }
                 }
 
-                val opponentDisplayName = findDisplayName(opponentUsername)
+                val opponentDisplayName = opponentUsername
 
                 val user = Duelists.findOrInsert(Users.findOrInsert(username, userDisplayName), channel)
 
@@ -224,12 +224,5 @@ class Duel : Command() {
         2 -> "${howMessage.random()} ${doesMessages.random()} ${withMessages.random()} ${targetMessages.random()}"
         3 -> "${howMessage.random()} ${shootMessages.random()} из ${weapons.random()} в ${targetMessages.random()}"
         else -> "${howMessage.random()} ${simpleAttackMessages.random()}"
-    }
-
-    // TODO: Move to an extension function to a class Command in kotlin-twitch-bot
-    // TODO: Use caching
-    private fun findDisplayName(username: String): String {
-        val user = twitchClient.userEndpoint.getUserByUserName(username)
-        return if (user.isPresent) user.get().displayName else username
     }
 }
