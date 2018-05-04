@@ -62,12 +62,13 @@ class Duel : Command() {
         super.executeCommand(messageEvent)
 
         val channelName = messageEvent!!.channel.name!!
+        val words = messageEvent.message.split("\\s".toRegex())
+
+        val username = messageEvent.user.name.toLowerCase()
+        val userDisplayName = messageEvent.user.displayName!!
+
         try {
             transaction {
-                val words = messageEvent.message.split("\\s".toRegex())
-
-                val username = messageEvent.user.name.toLowerCase()
-                val userDisplayName = messageEvent.user.displayName!!
                 val opponentUsername: String?
                 val channel = Channels.findOrInsert(channelName)
 
@@ -228,6 +229,7 @@ class Duel : Command() {
             return
         } catch (e: Exception) {
             logger.error(e) {}
+            sendMessageToChannel(channelName, "$userDisplayName, извини, произошла какая-то ошибка. Попробуй заново TehePelo")
             return
         }
     }
