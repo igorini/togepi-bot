@@ -12,6 +12,7 @@ import com.igorini.togepibot.commands.general.duel.spot.white.WhiteSpotCommand
 import com.igorini.togepibot.ext.displayRus
 import com.igorini.togepibot.ext.quotes
 import com.igorini.togepibot.ext.random
+import com.igorini.togepibot.ext.roundToInt
 import com.igorini.togepibot.model.*
 import me.philippheuer.twitch4j.events.event.irc.ChannelMessageEvent
 import me.philippheuer.twitch4j.message.commands.Command
@@ -20,7 +21,6 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import mu.KotlinLogging
 import org.joda.time.DateTime
 import org.joda.time.Period
-import kotlin.math.roundToInt
 
 /** Represents a command that performs a duel against someone in chat */
 class Duel : Command() {

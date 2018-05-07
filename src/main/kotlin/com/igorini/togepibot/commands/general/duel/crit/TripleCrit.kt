@@ -1,6 +1,6 @@
 package com.igorini.togepibot.commands.general.duel.crit
 
-import kotlin.math.roundToInt
+import com.igorini.togepibot.ext.roundToInt
 
 /** Represents a Triple Crit (x3) */
 object TripleCrit : Crit {

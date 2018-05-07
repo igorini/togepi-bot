@@ -2,7 +2,7 @@ package com.igorini.togepibot.commands.general.duel.crit
 
 import com.igorini.togepibot.TogepiBot.Companion.percents
 import com.igorini.togepibot.ext.random
-import kotlin.math.roundToInt
+import com.igorini.togepibot.ext.roundToInt
 
 /** Represents */
 interface Crit {
