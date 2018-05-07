@@ -10,5 +10,6 @@
 
 *log
 config/*
+/src/main/resources/images/
 /src/main/resources/config.yaml
 /src/main/resources/koin.properties

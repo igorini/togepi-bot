@@ -43,6 +43,7 @@ class TogepiBot : TwitchBot(), KoinComponent {
 
     companion object {
         const val togepiBotAdmin = "igor_dmitrievich"
+        //const val guiChannel = "igor_dmitrievich"
         @JvmField val botUsers = listOf("moobot", "nightbot", "mirrobot", "togepibot", "hereforde", "gamecastlebot")
         @JvmField val positiveEmotes = listOf("VoHiYo", "BloodTrail", "PogChamp", "CoolCat", "SeemsGood", "TehePelo")
         @JvmField val negativeEmotes = listOf("BibleThump", "FailFish", "DarkMode", "NotLikeThis", "BabyRage", "SwiftRage")
