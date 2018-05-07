@@ -46,7 +46,7 @@ class BlackSpotCommand : Command() {
                 if (channel.blackSpots.empty()) assignBlackSpot(channel, messageEvent)
 
                 val blackSpot = channel.blackSpots.first()
-                sendMessageToChannel(channelName, "Чёрная метка ${blackSpotSymbol} на @${blackSpot.duelist.user.displayName}. За его/её голову назначена награда в ${blackSpot.bounty} хп. Шанс крита по метке увеличен с ${DoubleCrit.chance()}% до ${DoubleCrit.chance() + blackSpotCritBonus}%")
+                sendMessageToChannel(channelName, "Чёрная метка ${blackSpotSymbol} на @${blackSpot.duelist.user.displayName} - за его/её голову назначена награда в ${blackSpot.bounty} хп. Шанс крита по метке увеличен с ${DoubleCrit.chance()}% до ${DoubleCrit.chance() + blackSpotCritBonus}%")
             }
         } catch (e: CommandException) {
             sendMessageToChannel(channelName, e.message)
