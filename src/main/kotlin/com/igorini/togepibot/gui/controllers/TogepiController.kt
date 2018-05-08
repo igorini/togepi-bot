@@ -15,6 +15,10 @@ import kotlinx.coroutines.experimental.launch
 import mu.KotlinLogging
 import tornadofx.*
 import java.io.File
+import com.google.common.collect.ArrayListMultimap
+import com.google.common.collect.Multimap
+
+
 
 /** Represents */
 class TogepiController : Controller() {
@@ -24,8 +28,9 @@ class TogepiController : Controller() {
         @JvmField val probePeriodMs = 500L
         @JvmField val sameImageMinDurationMs = 2000L
         @JvmField val sameImageMaxDurationMs = 10000L
+        @JvmField val chatBufferMaxDurationMs = 3000L
 
-        @Volatile var userMessagesBuffer = mutableMapOf<String, String>()
+        @Volatile var userMessagesBuffer: Multimap<String, String> = ArrayListMultimap.create()
     }
 
     val togepiView: TogepiView by inject()
@@ -40,6 +45,7 @@ class TogepiController : Controller() {
         launch {
             var prevClipboard = ""
             var sameImageDurationMs = 0L
+            var chatBufferDurationMs = 0L
             var clipboard = ""
 
             fun recogniseChatKeyword(text: String): Keyword? {
@@ -52,10 +58,12 @@ class TogepiController : Controller() {
             fun mostCommonChatKeyword(): Keyword? {
                 val chatKeywords: Multiset<Keyword> = HashMultiset.create()
                 logger.info { "Chat buffer: $userMessagesBuffer" }
-                userMessagesBuffer.filterKeys { !botUsers.contains(it) }.values.map { recogniseChatKeyword(it) }.filterNotNull().forEach { chatKeywords.add(it) }
-                userMessagesBuffer.clear()
+                userMessagesBuffer.asMap().filterKeys { !botUsers.contains(it) }.values.flatten().map { recogniseChatKeyword(it) }.filterNotNull().forEach { chatKeywords.add(it) }
+
+                if (chatKeywords.isEmpty()) return null
+
                 logger.info { "Chat Keywords: $chatKeywords" }
-                return if (chatKeywords.isEmpty()) null else Multisets.copyHighestCountFirst(chatKeywords).elementSet().iterator().next()
+                return Multisets.copyHighestCountFirst(chatKeywords).elementSet().iterator().next()
             }
 
             fun recogniseKeyword(): Keyword? {
@@ -82,6 +90,8 @@ class TogepiController : Controller() {
 
             while (true) {
                 delay(probePeriodMs)
+                sameImageDurationMs += probePeriodMs
+                chatBufferDurationMs += probePeriodMs
 
                 clipboard = clipboardHistory.readLines().last()
                 if (sameImageDurationMs >= sameImageMinDurationMs) {
@@ -90,14 +100,13 @@ class TogepiController : Controller() {
                         updateImage(DefaultKeyword)
                     } else {
                         val keyword = recogniseKeyword()
-                        if (keyword != null) {
-                            updateImage(keyword)
-                        } else {
-                            sameImageDurationMs += probePeriodMs
-                        }
+                        if (keyword != null) updateImage(keyword)
                     }
-                } else {
-                    sameImageDurationMs += probePeriodMs
+                }
+
+                if (chatBufferDurationMs >= chatBufferMaxDurationMs) {
+                    userMessagesBuffer.clear()
+                    chatBufferDurationMs = 0L
                 }
             }
         }
