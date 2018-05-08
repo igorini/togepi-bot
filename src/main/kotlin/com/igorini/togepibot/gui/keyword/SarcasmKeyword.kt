@@ -1,9 +1,11 @@
 package com.igorini.togepibot.gui.keyword
 
-import java.io.File
-
-/** Represents */
+/** Represents a Sarcasm keyword */
 object SarcasmKeyword : Keyword() {
     override fun folder() = "sarcasm"
-    override fun voiceAliases() = listOf("честно")
+    override fun voiceRus() = listOf("честно", "сарказм", "каппа")
+    override fun voiceEng() = listOf("honestly", "kappa")
+    override fun textRus() = voiceRus()
+    override fun textEng() = voiceEng()
+    override fun emotes() = listOf("sarcasm")
 }

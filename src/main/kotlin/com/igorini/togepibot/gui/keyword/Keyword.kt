@@ -14,6 +14,13 @@ abstract class Keyword {
     }
 
     abstract fun folder(): String
-    abstract fun voiceAliases(): List<String>
+    abstract fun voiceRus(): List<String>
+    abstract fun voiceEng(): List<String>
+    abstract fun textRus(): List<String>
+    abstract fun textEng(): List<String>
+    abstract fun emotes(): List<String>
+
     fun imageUrl() = images.random()
+    fun voice() = voiceRus() + voiceEng()
+    fun text() = textRus() + textEng() + emotes()
 }

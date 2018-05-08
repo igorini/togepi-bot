@@ -4,7 +4,6 @@ import com.igorini.togepibot.gui.TogepiApp
 import org.koin.dsl.module.applicationContext
 import org.koin.standalone.StandAloneContext.startKoin
 import tornadofx.*
-import java.io.File
 
 val TogepiBotModule = applicationContext {
     bean { TogepiBot() }

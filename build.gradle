@@ -8,6 +8,7 @@ buildscript {
         exposedVersion = '0.10.1'
         mysqlConnectorVersion = '6.0.6'
         tornadoFxVersion = '1.7.15'
+        guavaVersion = '25.0-jre'
     }
     repositories {
         mavenCentral()
@@ -66,4 +67,7 @@ dependencies {
 
     // TornadoFX
     compile("no.tornado:tornadofx:$tornadoFxVersion")
+
+    // Guava
+    compile("com.google.guava:guava:$guavaVersion")
 }

@@ -6,6 +6,7 @@ import com.igorini.togepibot.commands.general.duel.Hp
 import com.igorini.togepibot.commands.general.duel.spot.black.BlackSpotCommand
 import com.igorini.togepibot.commands.general.duel.spot.white.WhiteSpotCommand
 import com.igorini.togepibot.commands.general.duel.top.*
+import com.igorini.togepibot.listeners.ChannelMessageInterceptor
 import com.igorini.togepibot.model.*
 import com.igorini.togepibot.properties.DatabaseProperties
 import org.jetbrains.exposed.sql.Database
@@ -32,6 +33,8 @@ class TogepiBot : TwitchBot(), KoinComponent {
         registerCommand(Hp())
         registerCommand(BlackSpotCommand())
         registerCommand(WhiteSpotCommand())
+
+        registerListener(ChannelMessageInterceptor())
     }
 
     fun initDatabase() {
