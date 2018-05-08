@@ -69,18 +69,13 @@ class Duel : Command() {
 
         try {
             transaction {
-                val opponentUsername: String?
+                var opponentUsername: String?
                 val channel = Channels.findOrInsert(channelName)
 
                 if (words.size == 1) {
                     opponentUsername = channel.blackSpots.firstOrNull()?.duelist?.user?.name ?: randomViewerExcept(messageEvent, botUsers.plus(username))
-                    if (opponentUsername == null) {
-                        // TODO: Modify kotlin-twitch-bot and throw an exception instead
-                        throw CommandException("Достойных соперников не обнаружено. Kappa")
-                    }
-                    if (opponentUsername == username) {
-                        throw CommandException("Хорошая попытка, $userDisplayName TehePelo")
-                    }
+                    if (opponentUsername == username) opponentUsername = randomViewerExcept(messageEvent, botUsers.plus(username))
+                    if (opponentUsername == null) throw CommandException("Достойных соперников не обнаружено. Kappa")
                 } else {
                     opponentUsername = words[1].replaceFirst("^@".toRegex(), "").trim().toLowerCase()
                     if (opponentUsername == username) {
