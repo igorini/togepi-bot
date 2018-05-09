@@ -17,6 +17,7 @@ import tornadofx.*
 import java.io.File
 import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.Multimap
+import com.igorini.togepibot.ext.containsConsecutive
 
 /** Represents */
 class TogepiController : Controller() {
@@ -40,6 +41,7 @@ class TogepiController : Controller() {
     }
 
     fun listenForKeywords() {
+
         launch {
             var prevClipboard = ""
             var sameImageDurationMs = 0L
@@ -50,7 +52,12 @@ class TogepiController : Controller() {
                 logger.trace { "Text to recognise: $text" }
                 val words = text.toLowerCase().split("\\P{L}+".toRegex())
                 logger.trace { "Words to recognise: $words" }
-                return keywords.firstOrNull { it.text().any { words.contains(it) } }
+                return keywords.firstOrNull { it.text().any { words.containsConsecutive(it) } }
+            }
+
+            fun recogniseVoiceKeyword(text: String): Keyword? {
+                val words = text.toLowerCase().split("\\P{L}+".toRegex())
+                return keywords.firstOrNull { it.voice().any { words.containsConsecutive(it) } }
             }
 
             fun mostCommonChatKeyword(): Keyword? {
@@ -109,6 +116,4 @@ class TogepiController : Controller() {
             }
         }
     }
-
-    fun recogniseVoiceKeyword(text: String) = keywords.firstOrNull { it.voice().any { text.contains(it) } }
 }
