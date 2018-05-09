@@ -16,7 +16,7 @@ abstract class Keyword {
 
     companion object {
         const val rootFolder = "C:\\dev\\repos\\togepi-bot\\src\\main\\resources\\images\\"
-        @JvmField val globalSoundCooldownSec = 5
+        @JvmField val globalSoundCooldownSec = 10
     }
 
     abstract fun folder(): String
