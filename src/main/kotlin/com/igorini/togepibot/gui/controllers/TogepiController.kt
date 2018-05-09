@@ -18,8 +18,6 @@ import java.io.File
 import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.Multimap
 
-
-
 /** Represents */
 class TogepiController : Controller() {
     val logger = KotlinLogging.logger {}
@@ -49,15 +47,15 @@ class TogepiController : Controller() {
             var clipboard = ""
 
             fun recogniseChatKeyword(text: String): Keyword? {
-                logger.info { "Text to recognise: $text" }
+                logger.trace { "Text to recognise: $text" }
                 val words = text.toLowerCase().split("\\P{L}+".toRegex())
-                logger.info { "Words to recognise: $words" }
+                logger.trace { "Words to recognise: $words" }
                 return keywords.firstOrNull { it.text().any { words.contains(it) } }
             }
 
             fun mostCommonChatKeyword(): Keyword? {
                 val chatKeywords: Multiset<Keyword> = HashMultiset.create()
-                logger.info { "Chat buffer: $userMessagesBuffer" }
+                logger.trace { "Chat buffer: $userMessagesBuffer" }
                 userMessagesBuffer.asMap().filterKeys { !botUsers.contains(it) }.values.flatten().map { recogniseChatKeyword(it) }.filterNotNull().forEach { chatKeywords.add(it) }
 
                 if (chatKeywords.isEmpty()) return null
