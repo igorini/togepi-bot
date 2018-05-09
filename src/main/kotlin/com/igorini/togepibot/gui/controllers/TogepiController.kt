@@ -18,11 +18,11 @@ import java.io.File
 import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.Multimap
 import com.igorini.togepibot.ext.containsConsecutive
+import javafx.scene.media.AudioClip
+import org.joda.time.DateTime
 
 /** Represents */
 class TogepiController : Controller() {
-    val logger = KotlinLogging.logger {}
-
     companion object {
         @JvmField val probePeriodMs = 500L
         @JvmField val sameImageMinDurationMs = 2000L
@@ -32,9 +32,11 @@ class TogepiController : Controller() {
         @Volatile var userMessagesBuffer: Multimap<String, String> = ArrayListMultimap.create()
     }
 
+    val logger = KotlinLogging.logger {}
     val togepiView: TogepiView by inject()
     val keywords = listOf(HelloKeyword, SarcasmKeyword)
     val clipboardHistory = File("\\\\DESKTOP-STPM363\\shared\\clipboard.txt")
+    var soundOnGlobalCooldownUntil: DateTime? = null
 
     fun init() {
         listenForKeywords()
@@ -46,6 +48,7 @@ class TogepiController : Controller() {
             var prevClipboard = ""
             var sameImageDurationMs = 0L
             var chatBufferDurationMs = 0L
+            var timeSinceLastAudioMs = 0
             var clipboard = ""
 
             fun recogniseChatKeyword(text: String): Keyword? {
@@ -91,6 +94,15 @@ class TogepiController : Controller() {
             fun updateImage(keyword: Keyword) {
                 sameImageDurationMs = 0L
                 togepiView.imageView.image = Image(keyword.imageUrl(), TogepiView.prefWidth, TogepiView.prefHeight, true, true)
+                keyword.soundUrl()?.let {
+                    val notOnGlobalCooldown = soundOnGlobalCooldownUntil?.isBeforeNow ?: true
+                    val notOnKeywordCooldown = keyword.soundOnCooldownUntil?.isBeforeNow ?: true
+                    if (notOnGlobalCooldown && notOnKeywordCooldown) {
+                        keyword.soundOnCooldownUntil = DateTime.now().plusSeconds(keyword.soundCooldownSec)
+                        soundOnGlobalCooldownUntil = DateTime.now().plusSeconds(Keyword.globalSoundCooldownSec)
+                        AudioClip(it).play(keyword.soundVolume)
+                    }
+                }
             }
 
             while (true) {
