@@ -20,6 +20,6 @@ class ChannelMessageInterceptor {
 
         logger.info("Channel [$channel] - User[$user] - Message [$message]")
 
-        if (channel.toLowerCase() == TogepiBot.guiChannel) TogepiController.userMessagesBuffer.put(user.toLowerCase(), message)
+        if (channel.toLowerCase() == TogepiBot.guiChannel && message.split("\\s".toRegex()).firstOrNull()?.startsWith('!') ?: true) TogepiController.userMessagesBuffer.put(user.toLowerCase(), message)
     }
 }

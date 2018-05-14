@@ -4,10 +4,6 @@ import com.google.common.collect.HashMultiset
 import com.google.common.collect.Multiset
 import com.google.common.collect.Multisets
 import com.igorini.togepibot.TogepiBot.Companion.botUsers
-import com.igorini.togepibot.gui.keyword.DefaultKeyword
-import com.igorini.togepibot.gui.keyword.HelloKeyword
-import com.igorini.togepibot.gui.keyword.Keyword
-import com.igorini.togepibot.gui.keyword.SarcasmKeyword
 import com.igorini.togepibot.gui.views.TogepiView
 import javafx.scene.image.Image
 import kotlinx.coroutines.experimental.delay
@@ -18,6 +14,8 @@ import java.io.File
 import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.Multimap
 import com.igorini.togepibot.ext.containsConsecutive
+import com.igorini.togepibot.gui.keyword.*
+import com.igorini.togepibot.gui.keyword.anime.AnimeKeyword
 import javafx.scene.media.AudioClip
 import org.joda.time.DateTime
 
@@ -34,7 +32,7 @@ class TogepiController : Controller() {
 
     val logger = KotlinLogging.logger {}
     val togepiView: TogepiView by inject()
-    val keywords = listOf(HelloKeyword, SarcasmKeyword)
+    val keywords = listOf(AnimeKeyword, SarcasmKeyword, HelloKeyword, AgaKeyword)
     val clipboardHistory = File("\\\\DESKTOP-STPM363\\shared\\clipboard.txt")
     var soundOnGlobalCooldownUntil: DateTime? = null
 
@@ -53,13 +51,13 @@ class TogepiController : Controller() {
 
             fun recogniseChatKeyword(text: String): Keyword? {
                 logger.trace { "Text to recognise: $text" }
-                val words = text.toLowerCase().split("\\P{L}+".toRegex())
+                val words = text.toLowerCase().replace('ё', 'e').split("\\P{L}+".toRegex())
                 logger.trace { "Words to recognise: $words" }
                 return keywords.firstOrNull { it.text().any { words.containsConsecutive(it) } }
             }
 
             fun recogniseVoiceKeyword(text: String): Keyword? {
-                val words = text.toLowerCase().split("\\P{L}+".toRegex())
+                val words = text.toLowerCase().replace('ё', 'e').split("\\P{L}+".toRegex())
                 return keywords.firstOrNull { it.voice().any { words.containsConsecutive(it) } }
             }
 
