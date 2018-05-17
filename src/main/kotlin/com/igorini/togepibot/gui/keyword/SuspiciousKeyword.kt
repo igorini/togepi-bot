@@ -1,11 +1,11 @@
 package com.igorini.togepibot.gui.keyword
 
-/** Represents a keyword for text and sound associated with "Yes" */
+/** Represents a keyword for text and sound associated with "Suspicious" */
 object SuspiciousKeyword : Keyword() {
-    override fun folder() = "aga"
-    override fun voiceRus() = listOf("ага", "агась", "угу")
-    override fun voiceEng() = listOf("yes")
+    override fun folder() = "suspicious"
+    override fun voiceRus() = listOf("подозрительно", "подозрение", "подозрительный", "подозрительного", "подозрительному", "подозрительным", "подозрительном", "подозрительная", "подозрительной", "подозрительную", "подозрительное", "подозрительные", "подозрительных", "подозрительным", "подозрительными", "подозрителен", "подозрительна")
+    override fun voiceEng() = listOf("suspicious")
     override fun textRus() = voiceRus()
     override fun textEng() = voiceEng()
-    override fun emotes() = listOf("yes")
+    override fun emotes() = listOf("cmonbruh")
 }

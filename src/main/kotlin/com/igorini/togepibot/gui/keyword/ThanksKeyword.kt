@@ -1,11 +1,11 @@
 package com.igorini.togepibot.gui.keyword
 
-/** Represents a keyword for text and sound associated with "Yes" */
+/** Represents a keyword for text and sound associated with "Thanks" */
 object ThanksKeyword : Keyword() {
-    override fun folder() = "aga"
-    override fun voiceRus() = listOf("ага", "агась", "угу")
-    override fun voiceEng() = listOf("yes")
+    override fun folder() = "thanks"
+    override fun voiceRus() = listOf("спасибо", "спасибки", "благодарю", "спасибочки", "сяп", "спс")
+    override fun voiceEng() = listOf("thanks", "ty", "thank")
     override fun textRus() = voiceRus()
     override fun textEng() = voiceEng()
-    override fun emotes() = listOf("yes")
+    override fun emotes() = listOf("thanks")
 }

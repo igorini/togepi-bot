@@ -1,11 +1,11 @@
 package com.igorini.togepibot.gui.keyword
 
-/** Represents a keyword for text and sound associated with "Yes" */
+/** Represents a keyword for text and sound associated with "Wake Up" */
 object WakeUpKeyword : Keyword() {
-    override fun folder() = "aga"
-    override fun voiceRus() = listOf("ага", "агась", "угу")
-    override fun voiceEng() = listOf("yes")
+    override fun folder() = "wake-up"
+    override fun voiceRus() = listOf("просыпаться", "проснись", "проснулся", "проснулась", "проснулось", "проснулись", "проснусь", "проснешься", "проснется", "проснемся", "проснетесь", "проснитесь")
+    override fun voiceEng() = listOf("wake up", "woke up", "waking up")
     override fun textRus() = voiceRus()
     override fun textEng() = voiceEng()
-    override fun emotes() = listOf("yes")
+    override fun emotes() = listOf("wakeup")
 }

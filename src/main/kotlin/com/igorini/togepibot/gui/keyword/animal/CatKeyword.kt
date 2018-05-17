@@ -9,5 +9,5 @@ object CatKeyword : Keyword() {
     override fun voiceEng() = listOf("cat", "kitten", "cats", "kittens", "meow")
     override fun textRus() = voiceRus()
     override fun textEng() = voiceEng()
-    override fun emotes() = listOf("cat")
+    override fun emotes() = listOf("kippa", "dxcat")
 }

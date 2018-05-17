@@ -9,5 +9,5 @@ object TeaKeyword : Keyword() {
     override fun voiceEng() = listOf("tea", "coffee")
     override fun textRus() = voiceRus()
     override fun textEng() = voiceEng()
-    override fun emotes() = listOf("tea")
+    override fun emotes() = listOf("tpfufun")
 }

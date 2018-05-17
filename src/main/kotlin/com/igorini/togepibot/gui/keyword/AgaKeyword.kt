@@ -7,5 +7,5 @@ object AgaKeyword : Keyword() {
     override fun voiceEng() = listOf("yes", "yup")
     override fun textRus() = voiceRus()
     override fun textEng() = voiceEng()
-    override fun emotes() = listOf("yes")
+    override fun emotes() = listOf("voteyea")
 }

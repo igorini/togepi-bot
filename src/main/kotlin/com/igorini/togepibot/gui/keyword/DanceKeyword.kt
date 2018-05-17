@@ -7,5 +7,5 @@ object DanceKeyword : Keyword() {
     override fun voiceEng() = listOf("dance", "dancing", "danced", "dances")
     override fun textRus() = voiceRus()
     override fun textEng() = voiceEng()
-    override fun emotes() = listOf("dance")
+    override fun emotes() = listOf("jamespls")
 }

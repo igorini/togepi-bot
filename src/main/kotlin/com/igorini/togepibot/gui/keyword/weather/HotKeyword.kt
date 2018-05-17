@@ -9,5 +9,5 @@ object HotKeyword : Keyword() {
     override fun voiceEng() = listOf("hot", "warm", "boiling")
     override fun textRus() = voiceRus()
     override fun textEng() = voiceEng()
-    override fun emotes() = listOf("yes")
+    override fun emotes() = listOf("hot")
 }

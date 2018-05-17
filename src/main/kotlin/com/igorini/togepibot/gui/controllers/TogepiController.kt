@@ -15,7 +15,42 @@ import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.Multimap
 import com.igorini.togepibot.ext.containsConsecutive
 import com.igorini.togepibot.gui.keyword.*
+import com.igorini.togepibot.gui.keyword.animal.AnimalKeyword
+import com.igorini.togepibot.gui.keyword.animal.CatKeyword
+import com.igorini.togepibot.gui.keyword.animal.DogKeyword
+import com.igorini.togepibot.gui.keyword.animal.SquirrelKeyword
 import com.igorini.togepibot.gui.keyword.anime.AnimeKeyword
+import com.igorini.togepibot.gui.keyword.anime.GintamaKeyword
+import com.igorini.togepibot.gui.keyword.anime.SteinsGateKeyword
+import com.igorini.togepibot.gui.keyword.anime.rezero.RemKeyword
+import com.igorini.togepibot.gui.keyword.cartoon.CartoonKeyword
+import com.igorini.togepibot.gui.keyword.cartoon.PonyKeyword
+import com.igorini.togepibot.gui.keyword.cook.CookKeyword
+import com.igorini.togepibot.gui.keyword.cook.PanKeyword
+import com.igorini.togepibot.gui.keyword.drink.DrinkKeyword
+import com.igorini.togepibot.gui.keyword.drink.TeaKeyword
+import com.igorini.togepibot.gui.keyword.drink.alcohol.AlcoholKeyword
+import com.igorini.togepibot.gui.keyword.drink.alcohol.BeerKeyword
+import com.igorini.togepibot.gui.keyword.film.FilmKeyword
+import com.igorini.togepibot.gui.keyword.film.gameofthrones.GameOfThronesKeyword
+import com.igorini.togepibot.gui.keyword.film.gameofthrones.JonSnowKeyword
+import com.igorini.togepibot.gui.keyword.food.FoodKeyword
+import com.igorini.togepibot.gui.keyword.food.IceCreamKeyword
+import com.igorini.togepibot.gui.keyword.girl.GirlBlondeHairKeyword
+import com.igorini.togepibot.gui.keyword.girl.GirlKeyword
+import com.igorini.togepibot.gui.keyword.girl.GirlRedHairKeyword
+import com.igorini.togepibot.gui.keyword.good.GoodKeyword
+import com.igorini.togepibot.gui.keyword.good.OkKeyword
+import com.igorini.togepibot.gui.keyword.guy.BrunetKeyword
+import com.igorini.togepibot.gui.keyword.guy.GuyKeyword
+import com.igorini.togepibot.gui.keyword.music.DrumsKeyword
+import com.igorini.togepibot.gui.keyword.music.GuitarKeyword
+import com.igorini.togepibot.gui.keyword.music.MusicKeyword
+import com.igorini.togepibot.gui.keyword.person.actor.NicolasCageKeyword
+import com.igorini.togepibot.gui.keyword.weather.ColdKeyword
+import com.igorini.togepibot.gui.keyword.weather.HotKeyword
+import com.igorini.togepibot.gui.keyword.weather.RainKeyword
+import com.igorini.togepibot.gui.keyword.weather.WeatherKeyword
 import javafx.scene.media.AudioClip
 import org.joda.time.DateTime
 
@@ -32,7 +67,7 @@ class TogepiController : Controller() {
 
     val logger = KotlinLogging.logger {}
     val togepiView: TogepiView by inject()
-    val keywords = listOf(AnimeKeyword, SarcasmKeyword, HelloKeyword, AgaKeyword)
+    val keywords = listOf(MoniaKeyword, MilenaKeyword, BeerKeyword, WinkKeyword, JonSnowKeyword, RemKeyword, NicolasCageKeyword, GintamaKeyword, SteinsGateKeyword, SquirrelKeyword, DogKeyword, CatKeyword, PonyKeyword, PanKeyword, GameOfThronesKeyword, AlcoholKeyword, TeaKeyword, IceCreamKeyword, GirlBlondeHairKeyword, GirlRedHairKeyword, BrunetKeyword, RainKeyword, ColdKeyword, HotKeyword, OkKeyword, DrumsKeyword, GuitarKeyword, AngelKeyword, ChoiceKeyword, DrinkKeyword, CartoonKeyword, AnimalKeyword, GetWellKeyword, HeartKeyword, AnimeKeyword, CookKeyword, FoodKeyword, FilmKeyword, MusicKeyword, WeatherKeyword, FastKeyword, CrazyKeyword, GirlKeyword, GuyKeyword, BloodKeyword, DefeatKeyword, FatKeyword, GiftKeyword, ConfusedKeyword, FightKeyword, FlatteredKeyword, FlirtKeyword, FriendKeyword, GoodLuckKeyword, ByeKeyword, LittleBoyKeyword, LittleGirlKeyword, LonelyKeyword, AwkwardKeyword, BoredKeyword, CuteKeyword, AnnoyedKeyword, HugKeyword, HappyKeyword, HungryKeyword, InnocentKeyword, KissKeyword, LazyKeyword, MoneyKeyword, NaughtyKeyword, NervousKeyword, NoKeyword, ObidaKeyword, OohKeyword, OopsKeyword, PainKeyword, PaperKeyword, PartyKeyword, PhoneKeyword, PleaseKeyword, QuietKeyword, ReadKeyword, SadKeyword, SalivaKeyword, ScaredKeyword, ScreamKeyword, SexyKeyword, ShameKeyword, ShockKeyword, ShyKeyword, SiblingKeyword, SleepyKeyword, SmartKeyword, SneakKeyword, SorryKeyword, StressKeyword, SuspiciousKeyword, SweatKeyword, TeaseKeyword, ThanksKeyword, TiredKeyword, ToEatKeyword, ToLeaveKeyword, ToRunKeyword, ToSmokeKeyword, ToThinkKeyword, ToTypeKeyword, VictoryKeyword, WaitKeyword, WakeUpKeyword, WellDoneKeyword, WinkKeyword, AngryKeyword, ExcitedKeyword, BeggingKeyword, NotBadKeyword, CryKeyword, CoolKeyword, DanceKeyword, SarcasmKeyword, MonkasKeyword, HelloKeyword, GoodKeyword, LoveKeyword, LaughKeyword, AgaKeyword)
     val clipboardHistory = File("\\\\DESKTOP-STPM363\\shared\\clipboard.txt")
     var soundOnGlobalCooldownUntil: DateTime? = null
 
@@ -52,7 +87,7 @@ class TogepiController : Controller() {
             fun recogniseChatKeyword(text: String): Keyword? {
                 logger.trace { "Text to recognise: $text" }
                 val words = text.toLowerCase().replace('ё', 'e').split("\\P{L}+".toRegex())
-                logger.trace { "Words to recognise: $words" }
+                logger.info { "Words to recognise: $words" }
                 return keywords.firstOrNull { it.text().any { words.containsConsecutive(it) } }
             }
 
@@ -91,7 +126,10 @@ class TogepiController : Controller() {
 
             fun updateImage(keyword: Keyword) {
                 sameImageDurationMs = 0L
-                togepiView.imageView.image = Image(keyword.imageUrl(), TogepiView.prefWidth, TogepiView.prefHeight, true, true)
+                val imageUrl = keyword.imageUrl()
+                imageUrl?.let {
+                    togepiView.imageView.image = Image(imageUrl, TogepiView.prefWidth, TogepiView.prefHeight, true, true)
+                }
                 keyword.soundUrl()?.let {
                     val notOnGlobalCooldown = soundOnGlobalCooldownUntil?.isBeforeNow ?: true
                     val notOnKeywordCooldown = keyword.soundOnCooldownUntil?.isBeforeNow ?: true

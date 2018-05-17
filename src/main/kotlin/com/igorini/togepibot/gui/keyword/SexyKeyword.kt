@@ -1,11 +1,11 @@
 package com.igorini.togepibot.gui.keyword
 
-/** Represents a keyword for text and sound associated with "Yes" */
+/** Represents a keyword for text and sound associated with "Sexy" */
 object SexyKeyword : Keyword() {
-    override fun folder() = "aga"
-    override fun voiceRus() = listOf("ага", "агась", "угу")
-    override fun voiceEng() = listOf("yes")
+    override fun folder() = "sexy"
+    override fun voiceRus() = listOf("секси", "сексуальная", "сексуальный", "сексуальные")
+    override fun voiceEng() = listOf("sexy")
     override fun textRus() = voiceRus()
     override fun textEng() = voiceEng()
-    override fun emotes() = listOf("yes")
+    override fun emotes() = listOf("sexy")
 }

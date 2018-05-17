@@ -4,8 +4,8 @@ package com.igorini.togepibot.gui.keyword
 object NervousKeyword : Keyword() {
     override fun folder() = "nervous"
     override fun voiceRus() = listOf("нервничать", "переживать", "нервничал", "нервничаю", "переживаю", "переживал", "нервничала", "переживала", "неловко")
-    override fun voiceEng() = listOf("yes")
+    override fun voiceEng() = listOf("nervous")
     override fun textRus() = voiceRus()
     override fun textEng() = voiceEng()
-    override fun emotes() = listOf("yes")
+    override fun emotes() = listOf("nervous")
 }

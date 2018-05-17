@@ -7,5 +7,5 @@ object ExcitedKeyword : Keyword() {
     override fun voiceEng() = listOf("excited")
     override fun textRus() = voiceRus()
     override fun textEng() = voiceEng()
-    override fun emotes() = listOf("pogchamp")
+    override fun emotes() = listOf("pogchamp", "poggers")
 }

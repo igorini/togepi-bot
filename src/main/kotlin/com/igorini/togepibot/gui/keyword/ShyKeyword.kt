@@ -1,11 +1,11 @@
 package com.igorini.togepibot.gui.keyword
 
-/** Represents a keyword for text and sound associated with "Yes" */
+/** Represents a keyword for text and sound associated with "Shy" */
 object ShyKeyword : Keyword() {
-    override fun folder() = "aga"
-    override fun voiceRus() = listOf("стесняться", "стесняюсь", "стесняться", "стеснялся", "стеснялась", "стесняешься")
-    override fun voiceEng() = listOf("yes")
+    override fun folder() = "shy"
+    override fun voiceRus() = listOf("стесняться", "стесняюсь", "стесняться", "стеснялся", "стеснялась", "стесняешься", "стесняшка")
+    override fun voiceEng() = listOf("shy", "shyness")
     override fun textRus() = voiceRus()
     override fun textEng() = voiceEng()
-    override fun emotes() = listOf("yes")
+    override fun emotes() = listOf("shy")
 }

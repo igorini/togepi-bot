@@ -9,5 +9,5 @@ object FoodKeyword : Keyword() {
     override fun voiceEng() = listOf("food", "breakfast", "lunch", "dinner")
     override fun textRus() = voiceRus()
     override fun textEng() = voiceEng()
-    override fun emotes() = listOf("food")
+    override fun emotes() = listOf("nomnom", "doritoschip")
 }

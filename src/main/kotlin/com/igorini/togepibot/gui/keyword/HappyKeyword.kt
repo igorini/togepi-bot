@@ -7,5 +7,5 @@ object HappyKeyword : Keyword() {
     override fun voiceEng() = listOf("happy", "glad", "happier", "happiest")
     override fun textRus() = voiceRus()
     override fun textEng() = voiceEng()
-    override fun emotes() = listOf("happy")
+    override fun emotes() = listOf("kreygasm", "vohiyo", "carlsmile", "feelsamazingman")
 }

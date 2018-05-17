@@ -7,5 +7,5 @@ object AngryKeyword : Keyword() {
     override fun voiceEng() = listOf("angry", "mad", "furious")
     override fun textRus() = voiceRus()
     override fun textEng() = voiceEng()
-    override fun emotes() = listOf("angry")
+    override fun emotes() = listOf("flipthis", "gingerpower", "babyrage", "punoko")
 }

@@ -7,5 +7,5 @@ object NoKeyword : Keyword() {
     override fun voiceEng() = listOf("no", "nope", "none", "nay")
     override fun textRus() = voiceRus()
     override fun textEng() = voiceEng()
-    override fun emotes() = listOf("no")
+    override fun emotes() = listOf("votenay")
 }
