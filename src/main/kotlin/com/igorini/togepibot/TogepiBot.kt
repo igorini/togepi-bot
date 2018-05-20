@@ -19,7 +19,7 @@ import org.koin.standalone.getProperty
 class TogepiBot : TwitchBot(), KoinComponent {
     init {
         // TODO: In kotlin-twitch-bot make a vararg function registerCommands
-/*        registerCommand(Duel())
+        registerCommand(Duel())
         registerCommand(Tops())
         registerCommand(TopWinrate())
         registerCommand(TopHp())
@@ -32,7 +32,7 @@ class TogepiBot : TwitchBot(), KoinComponent {
         registerCommand(TopBounty())
         registerCommand(Hp())
         registerCommand(BlackSpotCommand())
-        registerCommand(WhiteSpotCommand())*/
+        registerCommand(WhiteSpotCommand())
 
         registerListener(ChannelMessageInterceptor())
     }
@@ -46,8 +46,8 @@ class TogepiBot : TwitchBot(), KoinComponent {
 
     companion object {
         const val togepiBotAdmin = "igor_dmitrievich"
-        //const val guiChannel = "igor_dmitrievich"
-        const val guiChannel = "lepeschka"
+        const val guiChannel = "igor_dmitrievich"
+        //const val guiChannel = "opprtnt"
         @JvmField val botUsers = listOf("moobot", "nightbot", "mirrobot", "togepibot", "hereforde", "gamecastlebot", "electricallongboard", "electricalskateboard", "wizebot", "restreamiobot")
         @JvmField val positiveEmotes = listOf("VoHiYo", "BloodTrail", "PogChamp", "CoolCat", "SeemsGood", "TehePelo")
         @JvmField val negativeEmotes = listOf("BibleThump", "FailFish", "DarkMode", "NotLikeThis", "BabyRage", "SwiftRage")

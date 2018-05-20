@@ -81,7 +81,6 @@ class TogepiController : Controller() {
             var prevClipboard = ""
             var sameImageDurationMs = 0L
             var chatBufferDurationMs = 0L
-            var timeSinceLastAudioMs = 0
             var clipboard = ""
 
             fun recogniseChatKeyword(text: String): Keyword? {

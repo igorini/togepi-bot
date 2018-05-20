@@ -8,7 +8,7 @@ import java.io.File
 /** Represents */
 abstract class Keyword {
     open val soundCooldownSec = 30
-    open val soundVolume = 0.2
+    open val soundVolume = 0.04
     open var soundOnCooldownUntil: DateTime? = null
 
     val images by lazy { File("$rootFolder${folder()}").walk().filter { it.isFile && !soundFileExtensions.contains(it.extension) }.map { it.toURI().toURL().toExternalForm() }.toList() }
