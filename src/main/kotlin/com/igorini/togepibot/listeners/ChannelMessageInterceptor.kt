@@ -6,7 +6,6 @@ import me.philippheuer.twitch4j.events.event.irc.ChannelMessageEvent
 import me.philippheuer.twitch4j.events.EventSubscriber
 import mu.KotlinLogging
 
-
 /** Represents an interceptor on [ChannelMessageEvent] */
 class ChannelMessageInterceptor {
     val logger = KotlinLogging.logger {}
@@ -20,6 +19,6 @@ class ChannelMessageInterceptor {
 
         logger.info("Channel [$channel] - User[$user] - Message [$message]")
 
-        if (channel.toLowerCase() == TogepiBot.guiChannel && !(message.split("\\s".toRegex()).firstOrNull()?.startsWith('!') ?: false)) TogepiController.userMessagesBuffer.put(user.toLowerCase(), message)
+        if (channel.toLowerCase() == TogepiBot.guiChannel && !(message?.startsWith('!') ?: false)) TogepiController.userMessagesBuffer.put(user.toLowerCase(), message)
     }
 }

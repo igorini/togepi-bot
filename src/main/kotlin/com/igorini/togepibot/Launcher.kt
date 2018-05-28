@@ -16,5 +16,5 @@ fun main(args : Array<String>) {
     startKoin(listOf(TogepiBotModule))
     (LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger).setLevel(Level.INFO)
     Application()
-    launch<TogepiApp>(args)
+    //launch<TogepiApp>(args)
 }

@@ -38,6 +38,10 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
     }
 }
 
+tasks.withType(JavaExec) {
+    jvmArgs = ['-Xmx4g']
+}
+
 repositories {
     jcenter()
     mavenCentral()

@@ -14,15 +14,21 @@ import java.io.File
 import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.Multimap
 import com.igorini.togepibot.ext.containsConsecutive
+import com.igorini.togepibot.ext.random
 import com.igorini.togepibot.gui.keyword.*
 import com.igorini.togepibot.gui.keyword.animal.AnimalKeyword
 import com.igorini.togepibot.gui.keyword.animal.CatKeyword
 import com.igorini.togepibot.gui.keyword.animal.DogKeyword
 import com.igorini.togepibot.gui.keyword.animal.SquirrelKeyword
-import com.igorini.togepibot.gui.keyword.anime.AnimeKeyword
-import com.igorini.togepibot.gui.keyword.anime.GintamaKeyword
-import com.igorini.togepibot.gui.keyword.anime.SteinsGateKeyword
+import com.igorini.togepibot.gui.keyword.anime.*
+import com.igorini.togepibot.gui.keyword.anime.deathnote.DeathNoteKeyword
+import com.igorini.togepibot.gui.keyword.anime.dokidoki.MonikaKeyword
+import com.igorini.togepibot.gui.keyword.anime.naruto.NarutoKeyword
+import com.igorini.togepibot.gui.keyword.anime.pokemon.PikachuKeyword
+import com.igorini.togepibot.gui.keyword.anime.pokemon.PokemonKeyword
+import com.igorini.togepibot.gui.keyword.anime.pokemon.SnorlaxKeyword
 import com.igorini.togepibot.gui.keyword.anime.rezero.RemKeyword
+import com.igorini.togepibot.gui.keyword.anime.touhou.CirnoKeyword
 import com.igorini.togepibot.gui.keyword.cartoon.CartoonKeyword
 import com.igorini.togepibot.gui.keyword.cartoon.PonyKeyword
 import com.igorini.togepibot.gui.keyword.cook.CookKeyword
@@ -31,21 +37,28 @@ import com.igorini.togepibot.gui.keyword.drink.DrinkKeyword
 import com.igorini.togepibot.gui.keyword.drink.TeaKeyword
 import com.igorini.togepibot.gui.keyword.drink.alcohol.AlcoholKeyword
 import com.igorini.togepibot.gui.keyword.drink.alcohol.BeerKeyword
+import com.igorini.togepibot.gui.keyword.film.AmericanHorrorStoryKeyword
+import com.igorini.togepibot.gui.keyword.film.DikiyAngelKeyword
 import com.igorini.togepibot.gui.keyword.film.FilmKeyword
+import com.igorini.togepibot.gui.keyword.film.RipperStreetKeyword
 import com.igorini.togepibot.gui.keyword.film.gameofthrones.GameOfThronesKeyword
 import com.igorini.togepibot.gui.keyword.film.gameofthrones.JonSnowKeyword
 import com.igorini.togepibot.gui.keyword.food.FoodKeyword
 import com.igorini.togepibot.gui.keyword.food.IceCreamKeyword
+import com.igorini.togepibot.gui.keyword.game.WitcherKeyword
 import com.igorini.togepibot.gui.keyword.girl.GirlBlondeHairKeyword
 import com.igorini.togepibot.gui.keyword.girl.GirlKeyword
 import com.igorini.togepibot.gui.keyword.girl.GirlRedHairKeyword
 import com.igorini.togepibot.gui.keyword.good.GoodKeyword
 import com.igorini.togepibot.gui.keyword.good.OkKeyword
+import com.igorini.togepibot.gui.keyword.guy.BeardGuyKeyword
 import com.igorini.togepibot.gui.keyword.guy.BrunetKeyword
 import com.igorini.togepibot.gui.keyword.guy.GuyKeyword
 import com.igorini.togepibot.gui.keyword.music.DrumsKeyword
 import com.igorini.togepibot.gui.keyword.music.GuitarKeyword
 import com.igorini.togepibot.gui.keyword.music.MusicKeyword
+import com.igorini.togepibot.gui.keyword.person.actor.EvaGreenKeyword
+import com.igorini.togepibot.gui.keyword.person.actor.KeanuReevesKeyword
 import com.igorini.togepibot.gui.keyword.person.actor.NicolasCageKeyword
 import com.igorini.togepibot.gui.keyword.weather.ColdKeyword
 import com.igorini.togepibot.gui.keyword.weather.HotKeyword
@@ -61,13 +74,15 @@ class TogepiController : Controller() {
         @JvmField val sameImageMinDurationMs = 2000L
         @JvmField val sameImageMaxDurationMs = 10000L
         @JvmField val chatBufferMaxDurationMs = 3000L
+        @JvmField val interestImageCooldownMs = 30000L
 
         @Volatile var userMessagesBuffer: Multimap<String, String> = ArrayListMultimap.create()
     }
 
     val logger = KotlinLogging.logger {}
     val togepiView: TogepiView by inject()
-    val keywords = listOf(MoniaKeyword, MilenaKeyword, BeerKeyword, WinkKeyword, JonSnowKeyword, RemKeyword, NicolasCageKeyword, GintamaKeyword, SteinsGateKeyword, SquirrelKeyword, DogKeyword, CatKeyword, PonyKeyword, PanKeyword, GameOfThronesKeyword, AlcoholKeyword, TeaKeyword, IceCreamKeyword, GirlBlondeHairKeyword, GirlRedHairKeyword, BrunetKeyword, RainKeyword, ColdKeyword, HotKeyword, OkKeyword, DrumsKeyword, GuitarKeyword, AngelKeyword, ChoiceKeyword, DrinkKeyword, CartoonKeyword, AnimalKeyword, GetWellKeyword, HeartKeyword, AnimeKeyword, CookKeyword, FoodKeyword, FilmKeyword, MusicKeyword, WeatherKeyword, FastKeyword, CrazyKeyword, GirlKeyword, GuyKeyword, BloodKeyword, DefeatKeyword, FatKeyword, GiftKeyword, ConfusedKeyword, FightKeyword, FlatteredKeyword, FlirtKeyword, FriendKeyword, GoodLuckKeyword, ByeKeyword, LittleBoyKeyword, LittleGirlKeyword, LonelyKeyword, AwkwardKeyword, BoredKeyword, CuteKeyword, AnnoyedKeyword, HugKeyword, HappyKeyword, HungryKeyword, InnocentKeyword, KissKeyword, LazyKeyword, MoneyKeyword, NaughtyKeyword, NervousKeyword, NoKeyword, ObidaKeyword, OohKeyword, OopsKeyword, PainKeyword, PaperKeyword, PartyKeyword, PhoneKeyword, PleaseKeyword, QuietKeyword, ReadKeyword, SadKeyword, SalivaKeyword, ScaredKeyword, ScreamKeyword, SexyKeyword, ShameKeyword, ShockKeyword, ShyKeyword, SiblingKeyword, SleepyKeyword, SmartKeyword, SneakKeyword, SorryKeyword, StressKeyword, SuspiciousKeyword, SweatKeyword, TeaseKeyword, ThanksKeyword, TiredKeyword, ToEatKeyword, ToLeaveKeyword, ToRunKeyword, ToSmokeKeyword, ToThinkKeyword, ToTypeKeyword, VictoryKeyword, WaitKeyword, WakeUpKeyword, WellDoneKeyword, WinkKeyword, AngryKeyword, ExcitedKeyword, BeggingKeyword, NotBadKeyword, CryKeyword, CoolKeyword, DanceKeyword, SarcasmKeyword, MonkasKeyword, HelloKeyword, GoodKeyword, LoveKeyword, LaughKeyword, AgaKeyword)
+    val keywords = listOf(FateStayNightKeyword, AmericanHorrorStoryKeyword, RipperStreetKeyword, EvangelionKeyword, JoJoKeyword, DikiyAngelKeyword, EvaGreenKeyword, CirnoKeyword, BeardGuyKeyword, DeathNoteKeyword, MoniaKeyword, MilenaKeyword, BeerKeyword, WitcherKeyword, WinkKeyword, JonSnowKeyword, MonikaKeyword, KeanuReevesKeyword, PikachuKeyword, SnorlaxKeyword, RemKeyword, NicolasCageKeyword, NarutoKeyword, GintamaKeyword, SteinsGateKeyword, SquirrelKeyword, DogKeyword, CatKeyword, PonyKeyword, PanKeyword, GameOfThronesKeyword, AlcoholKeyword, TeaKeyword, IceCreamKeyword, GirlBlondeHairKeyword, GirlRedHairKeyword, BrunetKeyword, RainKeyword, PokemonKeyword, ColdKeyword, HotKeyword, OkKeyword, DrumsKeyword, GuitarKeyword, AngelKeyword, ChoiceKeyword, DrinkKeyword, CartoonKeyword, AnimalKeyword, GetWellKeyword, HeartKeyword, AnimeKeyword, CookKeyword, FoodKeyword, FilmKeyword, MusicKeyword, WeatherKeyword, FastKeyword, CrazyKeyword, GirlKeyword, GuyKeyword, BloodKeyword, DefeatKeyword, FatKeyword, GiftKeyword, ConfusedKeyword, FightKeyword, FlatteredKeyword, FlirtKeyword, FriendKeyword, GoodLuckKeyword, ByeKeyword, LittleBoyKeyword, LittleGirlKeyword, LonelyKeyword, AwkwardKeyword, BoredKeyword, CuteKeyword, AnnoyedKeyword, HugKeyword, HappyKeyword, HungryKeyword, InnocentKeyword, KissKeyword, LazyKeyword, MoneyKeyword, NaughtyKeyword, NervousKeyword, NoKeyword, ObidaKeyword, OohKeyword, OopsKeyword, PainKeyword, PaperKeyword, PartyKeyword, PhoneKeyword, PleaseKeyword, QuietKeyword, ReadKeyword, SadKeyword, SalivaKeyword, ScaredKeyword, ScreamKeyword, SexyKeyword, ShameKeyword, ShockKeyword, ShyKeyword, SiblingKeyword, SleepyKeyword, SmartKeyword, SneakKeyword, SorryKeyword, StressKeyword, SuspiciousKeyword, SweatKeyword, TeaseKeyword, ThanksKeyword, TiredKeyword, ToEatKeyword, ToLeaveKeyword, ToRunKeyword, ToSmokeKeyword, ToThinkKeyword, ToTypeKeyword, VictoryKeyword, WaitKeyword, WakeUpKeyword, WellDoneKeyword, WinkKeyword, AngryKeyword, ExcitedKeyword, BeggingKeyword, NotBadKeyword, CryKeyword, CoolKeyword, DanceKeyword, SarcasmKeyword, MonkasKeyword, HelloKeyword, GoodKeyword, LoveKeyword, LaughKeyword, AgaKeyword)
+    val interestKeywords = listOf(CatKeyword, DogKeyword, SquirrelKeyword, FateStayNightKeyword, AmericanHorrorStoryKeyword, RipperStreetKeyword, GintamaKeyword, GameOfThronesKeyword, JoJoKeyword, DikiyAngelKeyword, SteinsGateKeyword, WitcherKeyword, PikachuKeyword, EvaGreenKeyword, DeathNoteKeyword, KeanuReevesKeyword, MonikaKeyword, CatKeyword, NarutoKeyword, DogKeyword, PokemonKeyword, SquirrelKeyword, RemKeyword, EvangelionKeyword, CirnoKeyword, SnorlaxKeyword)
     val clipboardHistory = File("\\\\DESKTOP-STPM363\\shared\\clipboard.txt")
     var soundOnGlobalCooldownUntil: DateTime? = null
 
@@ -81,12 +96,13 @@ class TogepiController : Controller() {
             var prevClipboard = ""
             var sameImageDurationMs = 0L
             var chatBufferDurationMs = 0L
+            var timeSinceLastInterestImageMs = 0L
             var clipboard = ""
 
             fun recogniseChatKeyword(text: String): Keyword? {
                 logger.trace { "Text to recognise: $text" }
                 val words = text.toLowerCase().replace('ё', 'e').split("\\P{L}+".toRegex())
-                logger.info { "Words to recognise: $words" }
+                logger.trace { "Words to recognise: $words" }
                 return keywords.firstOrNull { it.text().any { words.containsConsecutive(it) } }
             }
 
@@ -144,12 +160,18 @@ class TogepiController : Controller() {
                 delay(probePeriodMs)
                 sameImageDurationMs += probePeriodMs
                 chatBufferDurationMs += probePeriodMs
+                timeSinceLastInterestImageMs += probePeriodMs
 
                 clipboard = clipboardHistory.readLines().last()
                 if (sameImageDurationMs >= sameImageMinDurationMs) {
                     val forceUpdate = sameImageDurationMs >= sameImageMaxDurationMs
                     if (forceUpdate) {
-                        updateImage(DefaultKeyword)
+                        if (timeSinceLastInterestImageMs >= interestImageCooldownMs) {
+                            updateImage(interestKeywords.random())
+                            timeSinceLastInterestImageMs = 0L
+                        } else {
+                            updateImage(DefaultKeyword)
+                        }
                     } else {
                         val keyword = recogniseKeyword()
                         if (keyword != null) updateImage(keyword)
