@@ -16,10 +16,7 @@ import com.google.common.collect.Multimap
 import com.igorini.togepibot.ext.containsConsecutive
 import com.igorini.togepibot.ext.random
 import com.igorini.togepibot.gui.keyword.*
-import com.igorini.togepibot.gui.keyword.animal.AnimalKeyword
-import com.igorini.togepibot.gui.keyword.animal.CatKeyword
-import com.igorini.togepibot.gui.keyword.animal.DogKeyword
-import com.igorini.togepibot.gui.keyword.animal.SquirrelKeyword
+import com.igorini.togepibot.gui.keyword.animal.*
 import com.igorini.togepibot.gui.keyword.anime.*
 import com.igorini.togepibot.gui.keyword.anime.deathnote.DeathNoteKeyword
 import com.igorini.togepibot.gui.keyword.anime.dokidoki.MonikaKeyword
@@ -37,14 +34,16 @@ import com.igorini.togepibot.gui.keyword.drink.DrinkKeyword
 import com.igorini.togepibot.gui.keyword.drink.TeaKeyword
 import com.igorini.togepibot.gui.keyword.drink.alcohol.AlcoholKeyword
 import com.igorini.togepibot.gui.keyword.drink.alcohol.BeerKeyword
-import com.igorini.togepibot.gui.keyword.film.AmericanHorrorStoryKeyword
-import com.igorini.togepibot.gui.keyword.film.DikiyAngelKeyword
-import com.igorini.togepibot.gui.keyword.film.FilmKeyword
-import com.igorini.togepibot.gui.keyword.film.RipperStreetKeyword
+import com.igorini.togepibot.gui.keyword.film.*
 import com.igorini.togepibot.gui.keyword.film.gameofthrones.GameOfThronesKeyword
 import com.igorini.togepibot.gui.keyword.film.gameofthrones.JonSnowKeyword
 import com.igorini.togepibot.gui.keyword.food.FoodKeyword
 import com.igorini.togepibot.gui.keyword.food.IceCreamKeyword
+import com.igorini.togepibot.gui.keyword.food.KotletkiKeyword
+import com.igorini.togepibot.gui.keyword.food.PastaKeyword
+import com.igorini.togepibot.gui.keyword.game.DetroitBecomeHumanKeyword
+import com.igorini.togepibot.gui.keyword.game.OverwatchKeyword
+import com.igorini.togepibot.gui.keyword.game.SkyrimKeyword
 import com.igorini.togepibot.gui.keyword.game.WitcherKeyword
 import com.igorini.togepibot.gui.keyword.girl.GirlBlondeHairKeyword
 import com.igorini.togepibot.gui.keyword.girl.GirlKeyword
@@ -57,6 +56,7 @@ import com.igorini.togepibot.gui.keyword.guy.GuyKeyword
 import com.igorini.togepibot.gui.keyword.music.DrumsKeyword
 import com.igorini.togepibot.gui.keyword.music.GuitarKeyword
 import com.igorini.togepibot.gui.keyword.music.MusicKeyword
+import com.igorini.togepibot.gui.keyword.person.actor.BradPittKeyword
 import com.igorini.togepibot.gui.keyword.person.actor.EvaGreenKeyword
 import com.igorini.togepibot.gui.keyword.person.actor.KeanuReevesKeyword
 import com.igorini.togepibot.gui.keyword.person.actor.NicolasCageKeyword
@@ -81,8 +81,8 @@ class TogepiController : Controller() {
 
     val logger = KotlinLogging.logger {}
     val togepiView: TogepiView by inject()
-    val keywords = listOf(FateStayNightKeyword, AmericanHorrorStoryKeyword, RipperStreetKeyword, EvangelionKeyword, JoJoKeyword, DikiyAngelKeyword, EvaGreenKeyword, CirnoKeyword, BeardGuyKeyword, DeathNoteKeyword, MoniaKeyword, MilenaKeyword, BeerKeyword, WitcherKeyword, WinkKeyword, JonSnowKeyword, MonikaKeyword, KeanuReevesKeyword, PikachuKeyword, SnorlaxKeyword, RemKeyword, NicolasCageKeyword, NarutoKeyword, GintamaKeyword, SteinsGateKeyword, SquirrelKeyword, DogKeyword, CatKeyword, PonyKeyword, PanKeyword, GameOfThronesKeyword, AlcoholKeyword, TeaKeyword, IceCreamKeyword, GirlBlondeHairKeyword, GirlRedHairKeyword, BrunetKeyword, RainKeyword, PokemonKeyword, ColdKeyword, HotKeyword, OkKeyword, DrumsKeyword, GuitarKeyword, AngelKeyword, ChoiceKeyword, DrinkKeyword, CartoonKeyword, AnimalKeyword, GetWellKeyword, HeartKeyword, AnimeKeyword, CookKeyword, FoodKeyword, FilmKeyword, MusicKeyword, WeatherKeyword, FastKeyword, CrazyKeyword, GirlKeyword, GuyKeyword, BloodKeyword, DefeatKeyword, FatKeyword, GiftKeyword, ConfusedKeyword, FightKeyword, FlatteredKeyword, FlirtKeyword, FriendKeyword, GoodLuckKeyword, ByeKeyword, LittleBoyKeyword, LittleGirlKeyword, LonelyKeyword, AwkwardKeyword, BoredKeyword, CuteKeyword, AnnoyedKeyword, HugKeyword, HappyKeyword, HungryKeyword, InnocentKeyword, KissKeyword, LazyKeyword, MoneyKeyword, NaughtyKeyword, NervousKeyword, NoKeyword, ObidaKeyword, OohKeyword, OopsKeyword, PainKeyword, PaperKeyword, PartyKeyword, PhoneKeyword, PleaseKeyword, QuietKeyword, ReadKeyword, SadKeyword, SalivaKeyword, ScaredKeyword, ScreamKeyword, SexyKeyword, ShameKeyword, ShockKeyword, ShyKeyword, SiblingKeyword, SleepyKeyword, SmartKeyword, SneakKeyword, SorryKeyword, StressKeyword, SuspiciousKeyword, SweatKeyword, TeaseKeyword, ThanksKeyword, TiredKeyword, ToEatKeyword, ToLeaveKeyword, ToRunKeyword, ToSmokeKeyword, ToThinkKeyword, ToTypeKeyword, VictoryKeyword, WaitKeyword, WakeUpKeyword, WellDoneKeyword, WinkKeyword, AngryKeyword, ExcitedKeyword, BeggingKeyword, NotBadKeyword, CryKeyword, CoolKeyword, DanceKeyword, SarcasmKeyword, MonkasKeyword, HelloKeyword, GoodKeyword, LoveKeyword, LaughKeyword, AgaKeyword)
-    val interestKeywords = listOf(CatKeyword, DogKeyword, SquirrelKeyword, FateStayNightKeyword, AmericanHorrorStoryKeyword, RipperStreetKeyword, GintamaKeyword, GameOfThronesKeyword, JoJoKeyword, DikiyAngelKeyword, SteinsGateKeyword, WitcherKeyword, PikachuKeyword, EvaGreenKeyword, DeathNoteKeyword, KeanuReevesKeyword, MonikaKeyword, CatKeyword, NarutoKeyword, DogKeyword, PokemonKeyword, SquirrelKeyword, RemKeyword, EvangelionKeyword, CirnoKeyword, SnorlaxKeyword)
+    val keywords = listOf(TrueDetectiveKeyword, BreakingBadKeyword, BladeRunnerKeyword, PennyDreadfulKeyword, PastaKeyword, MiddleKeyword, FriendsKeyword, HowlsMovingCastleKeyword, SkyrimKeyword, OverwatchKeyword, BradPittKeyword, OneHundredKeyword, SailorMoonKeyword, SawKeyword, DetroitBecomeHumanKeyword, KotletkiKeyword, FateStayNightKeyword, AmericanHorrorStoryKeyword, RipperStreetKeyword, EvangelionKeyword, JoJoKeyword, DikiyAngelKeyword, EvaGreenKeyword, CirnoKeyword, BeardGuyKeyword, DeathNoteKeyword, MoniaKeyword, MilenaKeyword, BeerKeyword, WitcherKeyword, WinkKeyword, JonSnowKeyword, MonikaKeyword, KeanuReevesKeyword, PikachuKeyword, SnorlaxKeyword, RemKeyword, NicolasCageKeyword, NarutoKeyword, GintamaKeyword, SteinsGateKeyword, SquirrelKeyword, DogKeyword, CatKeyword, PonyKeyword, PanKeyword, GameOfThronesKeyword, AlcoholKeyword, TeaKeyword, IceCreamKeyword, GirlBlondeHairKeyword, GirlRedHairKeyword, BrunetKeyword, RainKeyword, PokemonKeyword, ColdKeyword, HotKeyword, OkKeyword, DrumsKeyword, GuitarKeyword, AngelKeyword, ChoiceKeyword, DrinkKeyword, CartoonKeyword, AnimalKeyword, GetWellKeyword, HeartKeyword, AnimeKeyword, CookKeyword, FoodKeyword, FilmKeyword, MusicKeyword, WeatherKeyword, FastKeyword, CrazyKeyword, GirlKeyword, GuyKeyword, BloodKeyword, DefeatKeyword, FatKeyword, GiftKeyword, ConfusedKeyword, FightKeyword, FlatteredKeyword, FlirtKeyword, FriendKeyword, GoodLuckKeyword, ByeKeyword, LittleBoyKeyword, LittleGirlKeyword, LonelyKeyword, AwkwardKeyword, BoredKeyword, CuteKeyword, RaccoonKeyword, AnnoyedKeyword, HugKeyword, HappyKeyword, HungryKeyword, InnocentKeyword, KissKeyword, LazyKeyword, MoneyKeyword, NaughtyKeyword, NervousKeyword, NoKeyword, ObidaKeyword, OohKeyword, OopsKeyword, PainKeyword, PaperKeyword, PartyKeyword, PhoneKeyword, PleaseKeyword, QuietKeyword, ReadKeyword, SadKeyword, SalivaKeyword, ScaredKeyword, ScreamKeyword, SexyKeyword, ShameKeyword, ShockKeyword, ShyKeyword, SiblingKeyword, SleepyKeyword, SmartKeyword, SneakKeyword, SorryKeyword, StressKeyword, SuspiciousKeyword, SweatKeyword, TeaseKeyword, ThanksKeyword, TiredKeyword, ToEatKeyword, ToLeaveKeyword, ToRunKeyword, ToSmokeKeyword, ToThinkKeyword, ToTypeKeyword, VictoryKeyword, WaitKeyword, WakeUpKeyword, WellDoneKeyword, WinkKeyword, AngryKeyword, ExcitedKeyword, BeggingKeyword, NotBadKeyword, CryKeyword, CoolKeyword, DanceKeyword, SarcasmKeyword, MonkasKeyword, HelloKeyword, GoodKeyword, LoveKeyword, LaughKeyword, AgaKeyword)
+    val interestKeywords = listOf(TrueDetectiveKeyword, BreakingBadKeyword, BladeRunnerKeyword, PennyDreadfulKeyword, PastaKeyword, MiddleKeyword, FriendsKeyword, HowlsMovingCastleKeyword, SkyrimKeyword, OverwatchKeyword, BradPittKeyword, OneHundredKeyword, SailorMoonKeyword, SawKeyword, DetroitBecomeHumanKeyword, RaccoonKeyword, KotletkiKeyword, CatKeyword, DogKeyword, SquirrelKeyword, RaccoonKeyword, FateStayNightKeyword, AmericanHorrorStoryKeyword, RipperStreetKeyword, GintamaKeyword, GameOfThronesKeyword, JoJoKeyword, DikiyAngelKeyword, SteinsGateKeyword, WitcherKeyword, PikachuKeyword, EvaGreenKeyword, DeathNoteKeyword, KeanuReevesKeyword, MonikaKeyword, CatKeyword, NarutoKeyword, DogKeyword, PokemonKeyword, SquirrelKeyword, RemKeyword, EvangelionKeyword, CirnoKeyword, SnorlaxKeyword)
     val clipboardHistory = File("\\\\DESKTOP-STPM363\\shared\\clipboard.txt")
     var soundOnGlobalCooldownUntil: DateTime? = null
 
