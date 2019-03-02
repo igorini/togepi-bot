@@ -48,7 +48,7 @@ class TogepiBot : TwitchBot(), KoinComponent {
         const val togepiBotAdmin = "igor_dmitrievich"
         const val guiChannel = "igor_dmitrievich"
         //const val guiChannel = "opprtnt"
-        @JvmField val botUsers = listOf("moobot", "nightbot", "mirrobot", "togepibot", "hereforde", "gamecastlebot", "electricallongboard", "electricalskateboard", "wizebot", "restreamiobot")
+        @JvmField val botUsers = listOf("moobot", "nightbot", "mirrobot", "togepibot", "hereforde", "gamecastlebot", "electricallongboard", "electricalskateboard", "wizebot", "restreamiobot", "sunlight_182")
         @JvmField val positiveEmotes = listOf("VoHiYo", "BloodTrail", "PogChamp", "CoolCat", "SeemsGood", "TehePelo")
         @JvmField val negativeEmotes = listOf("BibleThump", "FailFish", "DarkMode", "NotLikeThis", "BabyRage", "SwiftRage")
         @JvmField val percents = (1..100).toList()
