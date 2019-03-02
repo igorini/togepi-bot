@@ -87,9 +87,3 @@ dependencies {
     // Guava
     compile("com.google.guava:guava:$guavaVersion")
 }
-
-/*
-task<Wrapper>("wrapper") {
-    gradleVersion = "5.1.1"
-    distributionUrl = distributionUrl.replace("bin", "all")
-}*/
