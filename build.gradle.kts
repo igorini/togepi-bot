@@ -16,7 +16,7 @@ buildscript {
 }
 
 val kotlinVersion: String by extra
-val kotlinCoroutineVersion = "0.22.5"
+val kotlinCoroutineVersion = "1.1.1"
 val kotlinTwitchBotVersion = "0.0.10"
 val koinVersion = "0.9.2"
 val exposedVersion = "0.10.1"

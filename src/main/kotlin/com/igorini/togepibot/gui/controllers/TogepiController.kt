@@ -6,8 +6,7 @@ import com.google.common.collect.Multisets
 import com.igorini.togepibot.TogepiBot.Companion.botUsers
 import com.igorini.togepibot.gui.views.TogepiView
 import javafx.scene.image.Image
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.*
 import mu.KotlinLogging
 import tornadofx.*
 import java.io.File
@@ -67,7 +66,7 @@ import com.igorini.togepibot.gui.keyword.weather.WeatherKeyword
 import javafx.scene.media.AudioClip
 import org.joda.time.DateTime
 
-/** Represents */
+/** Represents a Togepi Controller */
 class TogepiController : Controller() {
     companion object {
         @JvmField val probePeriodMs = 500L
@@ -83,6 +82,8 @@ class TogepiController : Controller() {
     val togepiView: TogepiView by inject()
     val keywords = listOf(TrueDetectiveKeyword, BreakingBadKeyword, BladeRunnerKeyword, PennyDreadfulKeyword, PastaKeyword, MiddleKeyword, FriendsKeyword, HowlsMovingCastleKeyword, SkyrimKeyword, OverwatchKeyword, BradPittKeyword, OneHundredKeyword, SailorMoonKeyword, SawKeyword, DetroitBecomeHumanKeyword, KotletkiKeyword, FateStayNightKeyword, AmericanHorrorStoryKeyword, RipperStreetKeyword, EvangelionKeyword, JoJoKeyword, DikiyAngelKeyword, EvaGreenKeyword, CirnoKeyword, BeardGuyKeyword, DeathNoteKeyword, MoniaKeyword, MilenaKeyword, BeerKeyword, WitcherKeyword, WinkKeyword, JonSnowKeyword, MonikaKeyword, KeanuReevesKeyword, PikachuKeyword, SnorlaxKeyword, RemKeyword, NicolasCageKeyword, NarutoKeyword, GintamaKeyword, SteinsGateKeyword, SquirrelKeyword, DogKeyword, CatKeyword, PonyKeyword, PanKeyword, GameOfThronesKeyword, AlcoholKeyword, TeaKeyword, IceCreamKeyword, GirlBlondeHairKeyword, GirlRedHairKeyword, BrunetKeyword, RainKeyword, PokemonKeyword, ColdKeyword, HotKeyword, OkKeyword, DrumsKeyword, GuitarKeyword, AngelKeyword, ChoiceKeyword, DrinkKeyword, CartoonKeyword, AnimalKeyword, GetWellKeyword, HeartKeyword, AnimeKeyword, CookKeyword, FoodKeyword, FilmKeyword, MusicKeyword, WeatherKeyword, FastKeyword, CrazyKeyword, GirlKeyword, GuyKeyword, BloodKeyword, DefeatKeyword, FatKeyword, GiftKeyword, ConfusedKeyword, FightKeyword, FlatteredKeyword, FlirtKeyword, FriendKeyword, GoodLuckKeyword, ByeKeyword, LittleBoyKeyword, LittleGirlKeyword, LonelyKeyword, AwkwardKeyword, BoredKeyword, CuteKeyword, RaccoonKeyword, AnnoyedKeyword, HugKeyword, HappyKeyword, HungryKeyword, InnocentKeyword, KissKeyword, LazyKeyword, MoneyKeyword, NaughtyKeyword, NervousKeyword, NoKeyword, ObidaKeyword, OohKeyword, OopsKeyword, PainKeyword, PaperKeyword, PartyKeyword, PhoneKeyword, PleaseKeyword, QuietKeyword, ReadKeyword, SadKeyword, SalivaKeyword, ScaredKeyword, ScreamKeyword, SexyKeyword, ShameKeyword, ShockKeyword, ShyKeyword, SiblingKeyword, SleepyKeyword, SmartKeyword, SneakKeyword, SorryKeyword, StressKeyword, SuspiciousKeyword, SweatKeyword, TeaseKeyword, ThanksKeyword, TiredKeyword, ToEatKeyword, ToLeaveKeyword, ToRunKeyword, ToSmokeKeyword, ToThinkKeyword, ToTypeKeyword, VictoryKeyword, WaitKeyword, WakeUpKeyword, WellDoneKeyword, WinkKeyword, AngryKeyword, ExcitedKeyword, BeggingKeyword, NotBadKeyword, CryKeyword, CoolKeyword, DanceKeyword, SarcasmKeyword, MonkasKeyword, HelloKeyword, GoodKeyword, LoveKeyword, LaughKeyword, AgaKeyword)
     val interestKeywords = listOf(TrueDetectiveKeyword, BreakingBadKeyword, BladeRunnerKeyword, PennyDreadfulKeyword, PastaKeyword, MiddleKeyword, FriendsKeyword, HowlsMovingCastleKeyword, SkyrimKeyword, OverwatchKeyword, BradPittKeyword, OneHundredKeyword, SailorMoonKeyword, SawKeyword, DetroitBecomeHumanKeyword, RaccoonKeyword, KotletkiKeyword, CatKeyword, DogKeyword, SquirrelKeyword, RaccoonKeyword, FateStayNightKeyword, AmericanHorrorStoryKeyword, RipperStreetKeyword, GintamaKeyword, GameOfThronesKeyword, JoJoKeyword, DikiyAngelKeyword, SteinsGateKeyword, WitcherKeyword, PikachuKeyword, EvaGreenKeyword, DeathNoteKeyword, KeanuReevesKeyword, MonikaKeyword, CatKeyword, NarutoKeyword, DogKeyword, PokemonKeyword, SquirrelKeyword, RemKeyword, EvangelionKeyword, CirnoKeyword, SnorlaxKeyword)
+
+    // Clipboard shared on LAN
     val clipboardHistory = File("\\\\DESKTOP-STPM363\\shared\\clipboard.txt")
     var soundOnGlobalCooldownUntil: DateTime? = null
 
@@ -91,8 +92,7 @@ class TogepiController : Controller() {
     }
 
     fun listenForKeywords() {
-
-        launch {
+        GlobalScope.launch {
             var prevClipboard = ""
             var sameImageDurationMs = 0L
             var chatBufferDurationMs = 0L
